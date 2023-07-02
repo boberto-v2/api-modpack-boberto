@@ -1,2 +1,3 @@
 public/modpacks/*
-.vscode
+!public/modpacks/.gitkeep
+.vscode/*
