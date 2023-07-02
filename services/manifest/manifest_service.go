@@ -2,6 +2,7 @@ package manifest_service
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
@@ -12,7 +13,7 @@ import (
 
 func NewModPackManifest(modpack models.Modpack) {
 	config := config.GetConfig()
-	modpackPath := fmt.Sprintf("%s/%s/%s", config.PublicPath, modpack.NormalizedName, "manifest.json")
+	modPackManifestFile := filepath.Join(config.PublicPath, modpack.NormalizedName, "manifest.json")
 	clientManifestUrl := fmt.Sprintf("http://localhost:%s/%s/%s/%s", config.Port, modpack.NormalizedName, models.Client.GetFolderName(), "manifest.json")
 	serverManifestUrl := fmt.Sprintf("http://localhost:%s/%s/%s/%s", config.Port, modpack.NormalizedName, models.Server.GetFolderName(), "manifest.json")
 	manifest := models_manifest.Manifest{
@@ -24,7 +25,7 @@ func NewModPackManifest(modpack models.Modpack) {
 		ServerManifestUrl: serverManifestUrl,
 	}
 	jsonManifest := json_service.JsonWritter{
-		Path: modpackPath,
+		Path: modPackManifestFile,
 		Data: manifest,
 	}
 	jsonManifest.CreateFile()
@@ -32,13 +33,13 @@ func NewModPackManifest(modpack models.Modpack) {
 
 func NewManifest(modpack *models.Modpack, files []models.ModPackFile, environment models.MinecraftEnvironment) {
 	config := config.GetConfig()
-	modpackPath := fmt.Sprintf("%s/%s/%s/%s", config.PublicPath, modpack.NormalizedName, environment.GetFolderName(), "manifest.json")
+	maifestFile := filepath.Join(config.PublicPath, modpack.NormalizedName, environment.GetFolderName(), "manifest.json")
 	manifest := models_manifest.ModPackFileManifest{
 		CreateAt: time.Now(),
 		Files:    files,
 	}
 	jsonManifest := json_service.JsonWritter{
-		Path: modpackPath,
+		Path: maifestFile,
 		Data: manifest,
 	}
 	jsonManifest.CreateFile()

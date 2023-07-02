@@ -10,7 +10,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-var modpack_cache = cache.New(5*time.Minute, 10*time.Minute)
+var modpack_cache = cache.New(1*time.Second, 5*time.Second)
 
 func New() {
 	config := config.GetConfig()
@@ -18,7 +18,7 @@ func New() {
 		oldModPack := modpackExpire.(*models.Modpack)
 		finalPath := fmt.Sprintf("%s/%s", config.PublicPath, oldModPack.NormalizedName)
 		fmt.Printf("trying to remove %s", finalPath)
-		os.Remove(finalPath)
+		os.RemoveAll(finalPath)
 	})
 }
 

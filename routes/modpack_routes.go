@@ -6,14 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	"github.com/brutalzinn/boberto-modpack-api/models"
 	services_cache "github.com/brutalzinn/boberto-modpack-api/services/cache"
-	file_services "github.com/brutalzinn/boberto-modpack-api/services/file"
+	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/manifest"
+	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,13 +33,13 @@ func CreateModPackRoute(router gin.IRouter) {
 		modpack.New()
 		config := config.GetConfig()
 		modpackPath := fmt.Sprintf("%s/%s", config.PublicPath, modpack.NormalizedName)
-		dirExists := file_services.IsDirectoryExists(modpackPath)
+		dirExists := file_service.IsDirectoryExists(modpackPath)
 		if dirExists {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is already in process of creation"})
 			return
 		}
 		services_cache.CreateModpackCache(&modpack)
-		file_services.CreateDirectoryIfNotExists(modpackPath)
+		file_service.CreateDirectoryIfNotExists(modpackPath)
 		manifest_service.NewModPackManifest(modpack)
 		ctx.JSON(http.StatusOK, gin.H{"data": modpack})
 	})
@@ -57,15 +56,15 @@ func CreateModPackRoute(router gin.IRouter) {
 		environment := models.ParseMinecraftEnvironment(envQuery)
 		form, _ := ctx.MultipartForm()
 		config := config.GetConfig()
+		finalModPackPath := fmt.Sprintf("%s/%s/%s", config.PublicPath, modpack.NormalizedName, environment.GetFolderName())
+		file_service.CreateDirectoryIfNotExists(finalModPackPath)
+
 		files := form.File["files"]
-		modpackFiles := []models.ModPackFile{}
 		for _, file := range files {
-			originalFileName := strings.TrimSuffix(filepath.Base(file.Filename),
-				filepath.Ext(file.Filename))
-			finalModPackPath := fmt.Sprintf("%s/%s/%s", config.PublicPath, modpack.NormalizedName, environment.GetFolderName())
-			file_services.CreateDirectoryIfNotExists(finalModPackPath)
-			finalPath := fmt.Sprintf("%s/%s", finalModPackPath, originalFileName)
-			out, err := os.Create(finalPath)
+			// originalFileName := strings.TrimSuffix(filepath.Base(file.Filename),
+			// 	filepath.Ext(file.Filename))
+			finalZipFile := fmt.Sprintf("%s/%s", finalModPackPath, file.Filename)
+			out, err := os.Create(finalZipFile)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -76,20 +75,21 @@ func CreateModPackRoute(router gin.IRouter) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			checksum, err := file_services.GetCRC32(finalPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-			modpackFile := models.ModPackFile{
-				Name:        originalFileName,
-				Path:        finalPath,
-				Checksum:    checksum,
-				Environment: environment,
-			}
-			modpackFiles = append(modpackFiles, modpackFile)
+			// checksum, err := file_service.GetCRC32(finalZipFile)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			file_service.Unzip(finalZipFile, finalModPackPath)
+			// modpackFile := models.ModPackFile{
+			// 	Name:        originalFileName,
+			// 	Path:        finalPath,
+			// 	Checksum:    checksum,
+			// 	Environment: environment,
+			// }
+			// modpackFiles = append(modpackFiles, modpackFile)
 		}
-
-		manifest_service.NewManifest(modpack, modpackFiles, environment)
-		ctx.JSON(http.StatusOK, gin.H{"files": modpackFiles})
+		modPackFiles := modpack_service.CreateModPackFile(modpack, environment)
+		manifest_service.NewManifest(modpack, modPackFiles, environment)
+		ctx.JSON(http.StatusOK, gin.H{"files": modPackFiles})
 	})
 }

@@ -7,13 +7,14 @@ import (
 )
 
 type Modpack struct {
-	Id             string `json:"id"`
-	Name           string `json:"name"`
-	Premium        bool   `json:"premium"`
-	Address        string `json:"address"`
-	NormalizedName string `json:"normalized_name"`
-	Author         string `json:"author"`
-	Version        string `json:"version"`
+	Id             string        `json:"id"`
+	Name           string        `json:"name"`
+	Premium        bool          `json:"premium"`
+	Status         ModPackStatus `json:"status"`
+	Address        string        `json:"address"`
+	NormalizedName string        `json:"normalized_name"`
+	Author         string        `json:"author"`
+	Version        string        `json:"version"`
 }
 
 func (modpack *Modpack) New() {

@@ -1,4 +1,4 @@
-package file_services
+package file_service
 
 // I LOVE GOROUTINES.
 import (
