@@ -1,0 +1,8 @@
+{
+ "name": "modpack do boberto",
+ "version": "",
+ "author": "boberto",
+ "visible": true,
+ "client_manifest_url": "http://localhost:8000/modpack_do_boberto/client_files/manifest.json",
+ "server_manifest_url": "http://localhost:8000/modpack_do_boberto/server_files/manifest.json"
+}

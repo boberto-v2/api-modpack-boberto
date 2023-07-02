@@ -1,0 +1,4 @@
+[api]
+port = "8000"
+maxapikeys = 5
+publicpath = "./public/modpacks" 
