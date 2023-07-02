@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	config "github.com/brutalzinn/go-multiple-file/configs"
-	"github.com/brutalzinn/go-multiple-file/models"
+	config "github.com/brutalzinn/boberto-modpack-api/configs"
+	"github.com/brutalzinn/boberto-modpack-api/models"
 	"github.com/patrickmn/go-cache"
 )
 

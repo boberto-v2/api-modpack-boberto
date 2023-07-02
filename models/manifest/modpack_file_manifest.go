@@ -3,7 +3,7 @@ package models_manifest
 import (
 	"time"
 
-	"github.com/brutalzinn/go-multiple-file/models"
+	"github.com/brutalzinn/boberto-modpack-api/models"
 )
 
 type ModPackFileManifest struct {

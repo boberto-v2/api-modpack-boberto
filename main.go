@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	config "github.com/brutalzinn/go-multiple-file/configs"
-	"github.com/brutalzinn/go-multiple-file/routes"
-	modpack_cache "github.com/brutalzinn/go-multiple-file/services/cache"
+	config "github.com/brutalzinn/boberto-modpack-api/configs"
+	"github.com/brutalzinn/boberto-modpack-api/routes"
+	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/cache"
 	"github.com/gin-gonic/gin"
 )
 

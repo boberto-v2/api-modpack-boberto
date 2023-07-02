@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	config "github.com/brutalzinn/go-multiple-file/configs"
-	"github.com/brutalzinn/go-multiple-file/models"
-	services_cache "github.com/brutalzinn/go-multiple-file/services/cache"
-	file_services "github.com/brutalzinn/go-multiple-file/services/file"
-	manifest_service "github.com/brutalzinn/go-multiple-file/services/manifest"
+	config "github.com/brutalzinn/boberto-modpack-api/configs"
+	"github.com/brutalzinn/boberto-modpack-api/models"
+	services_cache "github.com/brutalzinn/boberto-modpack-api/services/cache"
+	file_services "github.com/brutalzinn/boberto-modpack-api/services/file"
+	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/manifest"
 	"github.com/gin-gonic/gin"
 )
 

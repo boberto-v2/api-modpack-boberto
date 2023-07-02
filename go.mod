@@ -1,4 +1,4 @@
-module github.com/brutalzinn/go-multiple-file
+module github.com/brutalzinn/boberto-modpack-api
 
 go 1.20
 

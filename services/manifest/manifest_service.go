@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	config "github.com/brutalzinn/go-multiple-file/configs"
-	"github.com/brutalzinn/go-multiple-file/models"
-	models_manifest "github.com/brutalzinn/go-multiple-file/models/manifest"
-	json_service "github.com/brutalzinn/go-multiple-file/services/json"
+	config "github.com/brutalzinn/boberto-modpack-api/configs"
+	"github.com/brutalzinn/boberto-modpack-api/models"
+	models_manifest "github.com/brutalzinn/boberto-modpack-api/models/manifest"
+	json_service "github.com/brutalzinn/boberto-modpack-api/services/json"
 )
 
 func NewModPackManifest(modpack models.Modpack) {
