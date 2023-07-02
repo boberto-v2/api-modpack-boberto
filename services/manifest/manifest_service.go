@@ -14,8 +14,8 @@ import (
 func NewModPackManifest(modpack models.Modpack) {
 	config := config.GetConfig()
 	modPackManifestFile := filepath.Join(config.PublicPath, modpack.NormalizedName, "manifest.json")
-	clientManifestUrl := fmt.Sprintf("http://localhost:%s/%s/%s/%s", config.Port, modpack.NormalizedName, models.Client.GetFolderName(), "manifest.json")
-	serverManifestUrl := fmt.Sprintf("http://localhost:%s/%s/%s/%s", config.Port, modpack.NormalizedName, models.Server.GetFolderName(), "manifest.json")
+	clientManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ManifestUrl, modpack.NormalizedName, models.Client.GetFolderName(), "manifest.json")
+	serverManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ManifestUrl, modpack.NormalizedName, models.Server.GetFolderName(), "manifest.json")
 	manifest := models_manifest.Manifest{
 		Name:              modpack.Name,
 		Author:            modpack.Author,
@@ -31,7 +31,7 @@ func NewModPackManifest(modpack models.Modpack) {
 	jsonManifest.CreateFile()
 }
 
-func NewManifest(modpack *models.Modpack, files []models.ModPackFile, environment models.MinecraftEnvironment) {
+func NewManifest(modpack models.Modpack, files []models.ModPackFile, environment models.MinecraftEnvironment) {
 	config := config.GetConfig()
 	maifestFile := filepath.Join(config.PublicPath, modpack.NormalizedName, environment.GetFolderName(), "manifest.json")
 	manifest := models_manifest.ModPackFileManifest{

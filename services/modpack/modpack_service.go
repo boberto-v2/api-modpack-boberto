@@ -12,7 +12,7 @@ import (
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 )
 
-func CreateModPackFile(modpack *models.Modpack, environment models.MinecraftEnvironment) []models.ModPackFile {
+func CreateModPackFile(modpack models.Modpack, environment models.MinecraftEnvironment) []models.ModPackFile {
 	config := config.GetConfig()
 	modpackPath := filepath.Join(config.PublicPath, modpack.NormalizedName, environment.GetFolderName())
 	modpackFiles := []models.ModPackFile{}
@@ -43,6 +43,51 @@ func CreateModPackFile(modpack *models.Modpack, environment models.MinecraftEnvi
 		log.Println(err)
 	}
 	return modpackFiles
+}
+
+func UploadServer(modpack models.Modpack, ftpCredentials models.ModPackFtp) error {
+	config := config.GetConfig()
+	modpackPath := filepath.Join(config.PublicPath, modpack.NormalizedName, models.Server.GetFolderName())
+	filePaths := []string{}
+	err := filepath.Walk(modpackPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			filePaths = append(filePaths, path)
+			return nil
+		})
+	err = file_service.UploadFilesAndDirsToFTP(
+		ftpCredentials.ServerFtp.Address,
+		ftpCredentials.ServerFtp.User,
+		ftpCredentials.ServerFtp.Password,
+		ftpCredentials.ServerFtp.Directory,
+		filePaths,
+	)
+	return err
+}
+
+func UploadClient(modpack models.Modpack, ftpCredentials models.ModPackFtp) error {
+	config := config.GetConfig()
+	modpackPath := filepath.Join(config.PublicPath, modpack.NormalizedName, models.Server.GetFolderName())
+	filePaths := []string{}
+	err := filepath.Walk(modpackPath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			filePaths = append(filePaths, path)
+			return nil
+		})
+	err = file_service.UploadFilesAndDirsToFTP(
+		ftpCredentials.ServerFtp.Address,
+		ftpCredentials.ServerFtp.User,
+		ftpCredentials.ServerFtp.Password,
+		ftpCredentials.ServerFtp.Directory,
+		filePaths,
+	)
+	fmt.Println("error uploading %s", err)
+	return err
 }
 
 func GetType(file string) models.MinecraftFileType {

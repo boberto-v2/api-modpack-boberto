@@ -12,6 +12,7 @@ type Modpack struct {
 	Premium        bool          `json:"premium"`
 	Status         ModPackStatus `json:"status"`
 	Address        string        `json:"address"`
+	ManifestUrl    string        `json:"manifest_url"`
 	NormalizedName string        `json:"normalized_name"`
 	Author         string        `json:"author"`
 	Version        string        `json:"version"`
@@ -22,4 +23,5 @@ func (modpack *Modpack) New() {
 	modpack.Id = id.String()
 	modpackNameLower := strings.ToLower(modpack.Name)
 	modpack.NormalizedName = strings.ReplaceAll(modpackNameLower, " ", "_")
+	modpack.Status = Created
 }
