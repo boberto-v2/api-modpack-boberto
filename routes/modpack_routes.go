@@ -113,15 +113,15 @@ func CreateModPackRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is not ready to finish"})
 			return
 		}
-		// if modpack.Status == models.PendingClientFiles ||
-		// 	modpack.Status == models.PendingServerFiles ||
-		// 	modpack.Status == models.PendingFileUpload {
-		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is " + modpack.Status.GetModPackStatus()})
-		// 	return
-		// }
+		if modpack.Status == models.PendingClientFiles ||
+			modpack.Status == models.PendingServerFiles ||
+			modpack.Status == models.PendingFileUpload {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is " + modpack.Status.GetModPackStatus()})
+			return
+		}
 		services_cache.SetStatus(modpack.Id, models.PendingFileUpload)
 		go modpack_service.UploadServer(modpack, modpackFtp)
-		//go modpack_service.UploadClient(modpack, modpackFtp)
+		go modpack_service.UploadClient(modpack, modpackFtp)
 		ctx.JSON(http.StatusOK, gin.H{"data": modpack})
 	})
 }

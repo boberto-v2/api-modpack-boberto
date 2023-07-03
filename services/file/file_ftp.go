@@ -11,10 +11,10 @@ import (
 	"github.com/jlaffaye/ftp"
 )
 
-func UploadFilesToFTP(files []string, modPackPath string, client *ftp.ServerConn) error {
+func UploadFilesToFTP(files []string, relativeToPath string, client *ftp.ServerConn) error {
 	for _, filePath := range files {
 		directory, filename := filepath.Split(filePath)
-		dirs := strings.Split(directory, "/")
+		dirs := strings.Split(directory, string(os.PathSeparator))
 		for _, dir := range dirs {
 			if dir == "" {
 				continue
@@ -36,7 +36,7 @@ func UploadFilesToFTP(files []string, modPackPath string, client *ftp.ServerConn
 				}
 			}
 		}
-		file, err := os.Open(filepath.Join(modPackPath, filePath))
+		file, err := os.Open(filepath.Join(relativeToPath, filePath))
 		if err != nil {
 			return fmt.Errorf("failed to open file: %v", err)
 		}
@@ -67,8 +67,8 @@ func OpenFtpConnection(ftpDir string, ftpHost string, ftpUser string, ftpPass st
 	return client, err
 }
 
-func UploadFileFtp(localFile string, client *ftp.ServerConn) error {
-	fileReader, err := os.Open(localFile)
+func UploadFileFtp(localFile string, relativeToPath string, client *ftp.ServerConn) error {
+	fileReader, err := os.Open(filepath.Join(relativeToPath, localFile))
 	if err != nil {
 		log.Printf("Cant open local file %s", err.Error())
 		return err

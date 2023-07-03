@@ -50,7 +50,8 @@ func CreateModPackFile(modpack models.Modpack, environment models.MinecraftEnvir
 	return modpackFiles
 }
 
-func UploadServer(modpack models.Modpack, ftpCredentials models.ModPackFtp) error {
+func UploadServer(modpack models.Modpack,
+	ftpCredentials models.ModPackFtp) error {
 	config := config.GetConfig()
 	modpackPath := filepath.Join(config.PublicPath, modpack.NormalizedName, models.Server.GetFolderName())
 
@@ -67,7 +68,6 @@ func UploadServer(modpack models.Modpack, ftpCredentials models.ModPackFtp) erro
 	manifest := manifest_service.ReadManifest(modpack, models.Server)
 	ftpManifest, err := file_service.ReadFileFTP("manifest.json", ftpClient)
 	if err != nil {
-		///now we dont have the manifest.json at ftp server. We need upload the files
 		var files []string
 		for _, item := range manifest.Files {
 			files = append(files, item.Path)
@@ -82,11 +82,16 @@ func UploadServer(modpack models.Modpack, ftpCredentials models.ModPackFtp) erro
 		log.Printf(err.Error())
 		return err
 	}
+	err = file_service.UploadFileFtp("manifest.json", modpackPath, ftpClient)
+	if err != nil {
+		log.Printf("Manifest server uploaded")
+		return err
+	}
 	newFiles, deleteFiles := manifest_service.CompareManifest(oldManifest, manifest)
 	log.Printf("new server files %v delete %v files", len(newFiles), len(deleteFiles))
 	for _, newFile := range newFiles {
 		filePath := filepath.Join(modpackPath, newFile.Path)
-		err := file_service.UploadFileFtp(filePath, ftpClient)
+		err := file_service.UploadFileFtp(filePath, modpackPath, ftpClient)
 		if err != nil {
 			log.Printf(err.Error())
 			return err
@@ -103,62 +108,63 @@ func UploadServer(modpack models.Modpack, ftpCredentials models.ModPackFtp) erro
 	return nil
 }
 
-// func UploadClient(modpack models.Modpack,
-// 	ftpCredentials models.ModPackFtp) error {
-// 	config := config.GetConfig()
-// 	modPackClientFolder := filepath.Join(config.PublicPath, modpack.NormalizedName, models.Client.GetFolderName())
+func UploadClient(modpack models.Modpack,
+	ftpCredentials models.ModPackFtp) error {
+	config := config.GetConfig()
+	modpackPath := filepath.Join(config.PublicPath, modpack.NormalizedName, models.Client.GetFolderName())
 
-// 	client, err := file_service.OpenFtpConnection(
-// 		ftpCredentials.ServerFtp.Directory,
-// 		ftpCredentials.ServerFtp.Address,
-// 		ftpCredentials.ServerFtp.User,
-// 		ftpCredentials.ServerFtp.Password,
-// 	)
-// 	if err != nil {
-// 		log.Printf(err.Error())
-// 		return err
-// 	}
-// 	ftpManifest, err := file_service.ReadFileOnFTP("manifest.json", client)
-// 	if err != nil {
-// 		///now we dont have the manifest.json at ftp server. We need upload the files
-// 		files, _ := file_service.WalkDir(modPackClientFolder)
-// 		for _, file := range files {
-// 			err := file_service.UploadFileOnFtp(file, client)
-// 			if err != nil {
-// 				log.Printf(err.Error())
-// 				return err
-// 			}
-// 		}
-// 		return nil
-// 	}
-// 	var oldManifest models_manifest.ModPackFileManifest
-// 	err = json.Unmarshal(ftpManifest, &oldManifest)
-// 	if err != nil {
-// 		log.Printf(err.Error())
-// 		return err
-// 	}
-// 	manifest := manifest_service.ReadManifest(modpack, models.Client)
-// 	newFiles, deleteFiles := manifest_service.CompareManifest(oldManifest, manifest)
-// 	log.Printf("new server files %v delete %v files", len(newFiles), len(deleteFiles))
-// 	for _, newFile := range newFiles {
-// 		filePath := filepath.Join(modPackClientFolder, newFile.Path)
-// 		err := file_service.UploadFileOnFtp(filePath, client)
-// 		if err != nil {
-// 			log.Printf(err.Error())
-// 			return err
-// 		}
-// 	}
-// 	for _, deleteFile := range deleteFiles {
-// 		filePath := filepath.Join(modPackClientFolder, deleteFile.Path)
-// 		err := file_service.DeleteFileOnFTP(filePath, client)
-// 		if err != nil {
-// 			log.Printf(err.Error())
-// 			return err
-// 		}
-// 	}
-// 	modpack_cache.SetStatus(modpack.Id, models.Finish)
-// 	return nil
-// }
+	ftpClient, err := file_service.OpenFtpConnection(
+		ftpCredentials.ClientFtp.Directory,
+		ftpCredentials.ClientFtp.Address,
+		ftpCredentials.ClientFtp.User,
+		ftpCredentials.ClientFtp.Password,
+	)
+	if err != nil {
+		log.Printf(err.Error())
+		return err
+	}
+	manifest := manifest_service.ReadManifest(modpack, models.Client)
+	ftpManifest, err := file_service.ReadFileFTP("manifest.json", ftpClient)
+	if err != nil {
+		var files []string
+		for _, item := range manifest.Files {
+			files = append(files, item.Path)
+		}
+		file_service.UploadFilesToFTP(files, modpackPath, ftpClient)
+		log.Printf("Uploading all init files to ftp server")
+		return nil
+	}
+	var oldManifest models_manifest.ModPackFileManifest
+	err = json.Unmarshal(ftpManifest, &oldManifest)
+	if err != nil {
+		log.Printf(err.Error())
+		return err
+	}
+	err = file_service.UploadFileFtp("manifest.json", modpackPath, ftpClient)
+	if err != nil {
+		log.Printf("Manifest client uploaded")
+		return err
+	}
+	newFiles, deleteFiles := manifest_service.CompareManifest(oldManifest, manifest)
+	log.Printf("new client files %v delete %v files", len(newFiles), len(deleteFiles))
+	for _, newFile := range newFiles {
+		filePath := filepath.Join(modpackPath, newFile.Path)
+		err := file_service.UploadFileFtp(filePath, modpackPath, ftpClient)
+		if err != nil {
+			log.Printf(err.Error())
+			return err
+		}
+	}
+	for _, deleteFile := range deleteFiles {
+		err := file_service.DeleteFileFTP(deleteFile.Path, ftpClient)
+		if err != nil {
+			log.Printf(err.Error())
+			return err
+		}
+	}
+	modpack_cache.SetStatus(modpack.Id, models.Finish)
+	return nil
+}
 
 func GetType(file string) models.MinecraftFileType {
 	parts := strings.Split(file, string(os.PathSeparator))
