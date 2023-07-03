@@ -102,12 +102,12 @@ func DeleteEmptyParentDirectories(directory string, client *ftp.ServerConn) erro
 	return nil
 }
 func UploadFileFTPWithDirectories(fileFtp string, relativeToPath string, client *ftp.ServerConn) error {
+	client.ChangeDir(initialFtpDir)
 	test := initialFtpDir + fileFtp
 	directory, filename := filepath.Split(test)
 	dirs := strings.Split(directory, string(os.PathSeparator))
 	for _, dir := range dirs {
 		if dir == "" {
-			client.ChangeDir(initialFtpDir)
 			continue
 		}
 		_, err := client.List(dir)
