@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// stop devlopment to document all i doing here and stop the hyperfocus at this project. its 7:30 AM and i still here.
 func main() {
 	router := gin.Default()
 	err := config.Load()
