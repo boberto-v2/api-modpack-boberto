@@ -1,6 +1,7 @@
 package models_manifest
 
 type Manifest struct {
+	Id                string `json:"id"`
 	Name              string `json:"name"`
 	Version           string `json:"version"`
 	Author            string `json:"author"`

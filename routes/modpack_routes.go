@@ -63,12 +63,16 @@ func CreateModPackRoute(router gin.IRouter) {
 			return
 		}
 		form, _ := ctx.MultipartForm()
+		if form == nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "You need upload a file or array of files"})
+			return
+		}
 		config := config.GetConfig()
 		finalModPackPath := fmt.Sprintf("%s/%s/%s", config.PublicPath, modpack.NormalizedName, environment.GetFolderName())
 		file_service.CreateDirectoryIfNotExists(finalModPackPath)
 		files := form.File["files"]
 		for _, file := range files {
-			finalZipFile := fmt.Sprintf("%s/%s", finalModPackPath, file.Filename)
+			finalZipFile := filepath.Join(finalModPackPath, file.Filename)
 			out, err := os.Create(finalZipFile)
 			if err != nil {
 				log.Fatal(err)
@@ -109,16 +113,15 @@ func CreateModPackRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is not ready to finish"})
 			return
 		}
-		if modpack.Status == models.PendingClientFiles ||
-			modpack.Status == models.PendingServerFiles ||
-			modpack.Status == models.PendingFileUpload {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is " + modpack.Status.GetModPackStatus()})
-			return
-		}
+		// if modpack.Status == models.PendingClientFiles ||
+		// 	modpack.Status == models.PendingServerFiles ||
+		// 	modpack.Status == models.PendingFileUpload {
+		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is " + modpack.Status.GetModPackStatus()})
+		// 	return
+		// }
 		services_cache.SetStatus(modpack.Id, models.PendingFileUpload)
-		modpack_service.UploadClient(modpack, modpackFtp)
-		modpack_service.UploadServer(modpack, modpackFtp)
-		services_cache.SetStatus(modpack.Id, models.Finish)
+		go modpack_service.UploadServer(modpack, modpackFtp)
+		//go modpack_service.UploadClient(modpack, modpackFtp)
 		ctx.JSON(http.StatusOK, gin.H{"data": modpack})
 	})
 }

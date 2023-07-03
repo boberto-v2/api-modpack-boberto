@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/gofrs/uuid v4.4.0+incompatible
+	github.com/jlaffaye/ftp v0.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/viper v1.16.0
 )
@@ -22,7 +23,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/jlaffaye/ftp v0.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
