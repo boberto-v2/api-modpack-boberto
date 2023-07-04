@@ -3,9 +3,10 @@ package config
 import "github.com/spf13/viper"
 
 type config struct {
-	Port       string
-	MaxApiKeys int64
-	PublicPath string
+	Port         string
+	MaxApiKeys   int64
+	PublicPath   string
+	ManifestName string
 }
 
 var cfg *config
@@ -13,6 +14,7 @@ var cfg *config
 func init() {
 	viper.SetDefault("api.port", 8000)
 	viper.SetDefault("api.publicpath", "public/modpacks")
+	viper.SetDefault("api.manifest_name", "manifest.json")
 }
 
 func Load() error {
@@ -28,6 +30,7 @@ func Load() error {
 	cfg = new(config)
 	cfg.Port = viper.GetString("api.port")
 	cfg.PublicPath = viper.GetString("api.publicpath")
+	cfg.ManifestName = viper.GetString("api.manifest_name")
 	return nil
 }
 

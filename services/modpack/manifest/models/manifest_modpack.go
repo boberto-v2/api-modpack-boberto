@@ -1,6 +1,6 @@
-package models_manifest
+package manifest_models
 
-type Manifest struct {
+type ManifestModPack struct {
 	Id                string `json:"id"`
 	Name              string `json:"name"`
 	Version           string `json:"version"`

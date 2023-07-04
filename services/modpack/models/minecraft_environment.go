@@ -1,4 +1,4 @@
-package models
+package modpack_models
 
 type MinecraftEnvironment int
 

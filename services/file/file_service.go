@@ -99,9 +99,9 @@ func WalkDir(dir, relativeTo string) ([]string, error) {
 
 	return files, err
 }
-func GetParentDirectory(path string) string {
-	parentDir := strings.TrimSuffix(path, "/")
-	lastIndex := strings.LastIndex(parentDir, "/")
+func GetParentDirectory(path string, separator string) string {
+	parentDir := strings.TrimSuffix(path, separator)
+	lastIndex := strings.LastIndex(parentDir, separator)
 	if lastIndex == -1 {
 		return ""
 	}

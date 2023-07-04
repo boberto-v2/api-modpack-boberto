@@ -1,6 +1,6 @@
-package models
+package modpack_models
 
-type ModPackStatus int
+type ModPackStatus uint
 
 const (
 	Created            ModPackStatus = 1 //modpack created

@@ -1,4 +1,4 @@
-package models
+package modpack_models
 
 type ModPackFtp struct {
 	ServerFtp Ftp `json:"server_ftp"`
