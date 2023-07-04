@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/brutalzinn/boberto-modpack-api/common"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
-	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	manifest_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest/models"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
 )
 
-func CreateModPackFilesManifest(modpackCache modpack_cache_models.ModPackCache,
+func CreateModPackFilesManifest(modPack modpack_models.MinecraftModPack,
 	environment modpack_models.MinecraftEnvironment) []manifest_models.ManifestFile {
-
+	normalizedName := common.NormalizeString(modPack.Name)
 	modpackPath := filepath.Join(cfg.PublicPath,
-		modpackCache.NormalizedName,
+		normalizedName,
 		environment.GetFolderName())
 
 	modpackFiles := []manifest_models.ManifestFile{}

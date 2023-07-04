@@ -11,10 +11,8 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
-	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
-	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
 	"github.com/gin-gonic/gin"
 )
@@ -102,9 +100,9 @@ func CreateModPackRoute(router gin.IRouter) {
 			environment == modpack_models.Server {
 			modpack_cache.SetStatus(modpack.Id, modpack_models.Waiting)
 		}
-		modPackFiles := modpack_service.CreateModPackFilesManifest(modpack, environment)
-		manifest_service.WriteModPackManifestFiles(modpack, modPackFiles, environment)
-		ctx.JSON(http.StatusOK, gin.H{"files": modPackFiles})
+		//modPackFiles := modpack_service.CreateModPackFilesManifest(modpack, environment)
+		//manifest_service.WriteModPackManifestFiles(modpack, modPackFiles, environment)
+		//ctx.JSON(http.StatusOK, gin.H{"files": modPackFiles})
 	})
 
 	router.POST("/modpacks/:id/finish", func(ctx *gin.Context) {
@@ -132,8 +130,8 @@ func CreateModPackRoute(router gin.IRouter) {
 			[BLOG.ROBERTOCPAES.DEV - HYPERFOCUS - PERSONAL DATA COMMENTARY - IGNORE]
 		*/
 
-		modpack_cache.SetStatus(modpack.Id, modpack_models.PendingFileUpload)
-		go modpack_service.UploadServer(modpack, modpackFtp)
+		// modpack_cache.SetStatus(modpack.Id, modpack_models.PendingFileUpload)
+		// go modpack_service.UploadServer(modpack, modpackFtp)
 		// go modpack_service.UploadClient(modpack, modpackFtp)
 		ctx.JSON(http.StatusOK, gin.H{"data": modpack})
 	})

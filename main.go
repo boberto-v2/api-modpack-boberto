@@ -5,7 +5,7 @@ import (
 
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	"github.com/brutalzinn/boberto-modpack-api/routes"
-	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/cache"
+	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	"github.com/gin-gonic/gin"
 )
 
