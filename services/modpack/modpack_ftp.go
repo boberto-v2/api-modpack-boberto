@@ -21,12 +21,12 @@ func UploadManifest(modPack modpack_models.MinecraftModPack, ftpClient *ftp.Serv
 
 	nameNormalized := common.NormalizeString(modPack.Name)
 
-	modPackPath := filepath.Join(cfg.PublicPath,
+	modPackPath := filepath.Join(cfg.API.PublicPath,
 		nameNormalized,
 		modpack_models.Client.GetFolderName())
 
 	err := ftp_service.UploadFileFTP(
-		cfg.ManifestName,
+		cfg.API.ManifestName,
 		modPackPath,
 		ftpClient)
 
@@ -39,7 +39,7 @@ func UploadManifest(modPack modpack_models.MinecraftModPack, ftpClient *ftp.Serv
 }
 
 func GetModPackManifest(ftpClient *ftp.ServerConn) (*manifest_models.ManifestFiles, error) {
-	ftpManifestJson, err := ftp_service.ReadFileFTP(cfg.ManifestName, ftpClient)
+	ftpManifestJson, err := ftp_service.ReadFileFTP(cfg.API.ManifestName, ftpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func UploadServer(modpack modpack_models.MinecraftModPack,
 
 	normalizeName := common.NormalizeString(modpack.Name)
 	modPackPath := filepath.Join(
-		cfg.PublicPath,
+		cfg.API.PublicPath,
 		normalizeName,
 		modpack_models.Server.GetFolderName())
 
@@ -115,7 +115,7 @@ func UploadServer(modpack modpack_models.MinecraftModPack,
 		}
 		log.Printf("Uploading all server modpacks files to ftp server")
 		log.Printf("Uploading server manifest file")
-		err = ftp_service.UploadFileFTP(cfg.ManifestName, modPackPath, ftpClient)
+		err = ftp_service.UploadFileFTP(cfg.API.ManifestName, modPackPath, ftpClient)
 		if err != nil {
 			log.Printf("Manifest server uploaded")
 			return err
@@ -134,7 +134,7 @@ func UploadClient(modpack modpack_models.MinecraftModPack,
 	nameNormalized := common.NormalizeString(modpack.Name)
 
 	modPackPath := filepath.Join(
-		cfg.PublicPath,
+		cfg.API.PublicPath,
 		nameNormalized,
 		modpack_models.Client.GetFolderName())
 

@@ -3,10 +3,21 @@ package config
 import "github.com/spf13/viper"
 
 type config struct {
+	API            APIConfig
+	Authentication AuthConfig
+}
+
+type APIConfig struct {
 	Port         string
 	MaxApiKeys   int64
 	PublicPath   string
 	ManifestName string
+}
+
+type AuthConfig struct {
+	Secret     string
+	Expiration int64
+	AesKey     string
 }
 
 var cfg *config
@@ -28,9 +39,17 @@ func Load() error {
 		}
 	}
 	cfg = new(config)
-	cfg.Port = viper.GetString("api.port")
-	cfg.PublicPath = viper.GetString("api.publicpath")
-	cfg.ManifestName = viper.GetString("api.manifest_name")
+	cfg.API = APIConfig{
+		Port:         viper.GetString("api.port"),
+		MaxApiKeys:   viper.GetInt64("api.maxapikeys"),
+		PublicPath:   viper.GetString("api.publicpath"),
+		ManifestName: viper.GetString("api.manifest_name"),
+	}
+	cfg.Authentication = AuthConfig{
+		Secret:     viper.GetString("authentication.secret"),
+		Expiration: viper.GetInt64("authentication.expiration"),
+		AesKey:     viper.GetString("authentication.aeskey"),
+	}
 	return nil
 }
 

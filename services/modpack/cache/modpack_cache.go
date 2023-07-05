@@ -21,7 +21,7 @@ func New() {
 		if oldModPack.Status == modpack_models.Aborted ||
 			oldModPack.Status == modpack_models.Canceled ||
 			oldModPack.Status == modpack_models.Error {
-			finalPath := filepath.Join(config.PublicPath, oldModPack.NormalizedName)
+			finalPath := filepath.Join(config.API.PublicPath, oldModPack.NormalizedName)
 			fmt.Printf("trying to remove %s", finalPath)
 			os.RemoveAll(finalPath)
 		}

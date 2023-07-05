@@ -16,7 +16,7 @@ import (
 func CreateModPackFilesManifest(modPack modpack_models.MinecraftModPack,
 	environment modpack_models.MinecraftEnvironment) []manifest_models.ManifestFile {
 	normalizedName := common.NormalizeString(modPack.Name)
-	modpackPath := filepath.Join(cfg.PublicPath,
+	modpackPath := filepath.Join(cfg.API.PublicPath,
 		normalizedName,
 		environment.GetFolderName())
 

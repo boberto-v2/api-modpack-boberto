@@ -22,5 +22,5 @@ func main() {
 		ctx.JSON(200, gin.H{"status": "success", "message": "How to Upload Single and Multiple Files in Golang"})
 	})
 	routes.CreateModPackRoute(router)
-	router.Run(fmt.Sprintf(":%s", config.Port))
+	router.Run(fmt.Sprintf(":%s", config.API.Port))
 }

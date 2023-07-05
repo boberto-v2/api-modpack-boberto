@@ -35,7 +35,7 @@ func CreateModPackRoute(router gin.IRouter) {
 		}
 
 		nameNormalized := common.NormalizeString(modpack.Name)
-		modpackPath := filepath.Join(cfg.PublicPath, nameNormalized)
+		modpackPath := filepath.Join(cfg.API.PublicPath, nameNormalized)
 		dirExists := file_service.IsDirectoryExists(modpackPath)
 		if dirExists {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Modpack is already in process of creation"})
@@ -72,7 +72,7 @@ func CreateModPackRoute(router gin.IRouter) {
 			return
 		}
 		config := config.GetConfig()
-		finalModPackPath := fmt.Sprintf("%s/%s/%s", config.PublicPath, modpack.NormalizedName, environment.GetFolderName())
+		finalModPackPath := fmt.Sprintf("%s/%s/%s", config.API.PublicPath, modpack.NormalizedName, environment.GetFolderName())
 		file_service.CreateDirectoryIfNotExists(finalModPackPath)
 		files := form.File["files"]
 		for _, file := range files {
