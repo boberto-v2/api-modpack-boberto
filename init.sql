@@ -1,3 +1,5 @@
+-- ///TODO: Explain to Daniel why i started the database schema with users and what hell users can have a api key.
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS users (

@@ -16,6 +16,7 @@ const (
 	FTP_SEPARATOR = "/"
 )
 
+/// TODO: Explain to Daniel why i choose FTP upload files
 func OpenFtpConnection(ftpDir string, ftpHost string, ftpUser string, ftpPass string) (*ftp.ServerConn, error) {
 	client, err := ftp.Dial(ftpHost)
 	if err != nil {

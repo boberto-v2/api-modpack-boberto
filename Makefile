@@ -1,3 +1,5 @@
+# //TODO: Explain to Daniel how to use makefile and how we will implement the CI/CD using Makefile at server level
+
 user := root
 database := test
 
