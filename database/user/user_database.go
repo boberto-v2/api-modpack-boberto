@@ -18,7 +18,7 @@ func Delete(id string) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func Get(id string) (user entities.User, err error) {
+func Get(id string) (user *entities.User, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return
@@ -26,12 +26,11 @@ func Get(id string) (user entities.User, err error) {
 	defer conn.Close(ctx)
 	row := conn.QueryRow(ctx, "SELECT * FROM users WHERE id=$1", id)
 	err = row.Scan(
-		user.ID,
-		user.Email,
-		user.Password,
-		user.Username,
-		user.CreateAt,
-		user.UpdateAt)
+		&user.ID,
+		&user.Email,
+		&user.Username,
+		&user.CreateAt,
+		&user.UpdateAt)
 	return
 }
 
@@ -73,4 +72,15 @@ func Update(id int64, user entities.User) (int64, error) {
 		return 0, err
 	}
 	return res.RowsAffected(), nil
+}
+
+func FindByEmail(email string) (user entities.User, err error) {
+	conn, err, ctx := database.OpenConnection()
+	if err != nil {
+		return
+	}
+	defer conn.Close(ctx)
+	row := conn.QueryRow(ctx, "SELECT id, password FROM users WHERE email=$1", email)
+	err = row.Scan(user.ID, user.Password)
+	return
 }

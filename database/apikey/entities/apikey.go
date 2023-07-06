@@ -3,7 +3,7 @@ package entities
 import "time"
 
 type ApiKey struct {
-	Id          string
+	ID          string
 	Key         string
 	UserId      string
 	Scopes      string

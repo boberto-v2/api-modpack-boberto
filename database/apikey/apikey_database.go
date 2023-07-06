@@ -21,7 +21,7 @@ func Insert(apiKey entities.ApiKey) {
 		apiKey.Key,
 		apiKey.Scopes,
 		apiKey.UserId,
-		apiKey.ExpireAt).Scan(&apiKey.Id)
+		apiKey.ExpireAt).Scan(&apiKey.ID)
 	return
 }
 
@@ -42,7 +42,7 @@ func Update(apiKey entities.ApiKey) (int64, error) {
 		apiKey.Scopes,
 		apiKey.ExpireAt,
 		time.Now(),
-		apiKey.Id)
+		apiKey.ID)
 	if err != nil {
 		return 0, err
 	}
@@ -55,7 +55,7 @@ func Delete(apiKey entities.ApiKey) (int64, error) {
 		return 0, nil
 	}
 	defer conn.Close(ctx)
-	res, err := conn.Exec(ctx, "DELETE FROM users_api_key WHERE id=$1", apiKey.Id)
+	res, err := conn.Exec(ctx, "DELETE FROM users_api_key WHERE id=$1", apiKey.ID)
 	if err != nil {
 		return 0, nil
 	}
@@ -68,8 +68,8 @@ func Get(keyId string) (apiKey entities.ApiKey, err error) {
 		return
 	}
 	defer conn.Close(ctx)
-	row := conn.QueryRow(ctx, "SELECT * FROM users_api_key WHERE id=$1", apiKey.Id)
-	err = row.Scan(apiKey.Id,
+	row := conn.QueryRow(ctx, "SELECT * FROM users_api_key WHERE id=$1", apiKey.ID)
+	err = row.Scan(apiKey.ID,
 		apiKey.Key,
 		apiKey.Scopes,
 		apiKey.UserId,

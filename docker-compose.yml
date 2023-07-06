@@ -9,7 +9,7 @@ services:
         environment:
             - PG_URI=postgres://root:test@postgree_hostname/test?sslmode=disable
         volumes:
-            - "./src:/app/"
+            - ./:/app/
         restart: unless-stopped
         tty: true
     postgres:

@@ -1,4 +1,4 @@
-package api_key
+package authentication_apikey
 
 import (
 	"time"

@@ -56,3 +56,10 @@ func Load() error {
 func GetConfig() *config {
 	return cfg
 }
+
+func GetAesSecret() []byte {
+	return []byte(cfg.Authentication.AesKey)
+}
+func GetJWTSecret() []byte {
+	return []byte(cfg.Authentication.Secret)
+}
