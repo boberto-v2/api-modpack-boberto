@@ -1,7 +1,7 @@
+# This docker file is to be used without installing air
 FROM golang:latest
 WORKDIR /app
 COPY . .
-
 RUN go mod download
 RUN go get github.com/githubnemo/CompileDaemon
 RUN go install github.com/githubnemo/CompileDaemon

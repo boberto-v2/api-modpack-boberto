@@ -24,13 +24,13 @@ swagger:
 	docker-compose exec -i app swag init
 	@echo "Swagger doc generated"
 
-test-db:
-	@echo "${CYAN} Running API database tests ${CYAN}"
-	@echo "${RED}==> Running tests using docker-compose deps ${RED}"
+test:
+	@echo "${CYAN} Running API-MODPACK-TEST ${CYAN}"
+	@echo "${RED}==> Running tests using docker-compose ${RED}"
 	@docker-compose up -d
 	@sleep 3 && \
 		PG_URI="postgres://test:test@`docker-compose port postgres 5432`/test?sslmode=disable" \
-		go test ./test_database -timeout 60s -cover -coverprofile=test_database/coverage.txt -covermode=atomic ./...
+		go test ./test_database -timeout 60s -cover -coverprofile=test_database/coverage.txt ./...
 	@echo "${RED} coverate.txt is ready ${RED}"
 	@echo "${RED} shutdown temporary database ${RED}"
 	@docker-compose down

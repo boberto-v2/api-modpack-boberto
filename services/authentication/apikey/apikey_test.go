@@ -1,4 +1,4 @@
-package test_database
+package authentication_apikey
 
 import (
 	"testing"
@@ -7,7 +7,6 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	user_database "github.com/brutalzinn/boberto-modpack-api/database/user"
 	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
-	authentication_apikey "github.com/brutalzinn/boberto-modpack-api/services/authentication/apikey/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +18,7 @@ func TestGenerate(t *testing.T) {
 		t.Error(err)
 	}
 	// one year api key
-	userApiKey := authentication_apikey.UserApiKey{
+	userApiKey := UserApiKey{
 		AppName:  "bricks",
 		Duration: time.Duration(time.Hour * 24 * 365),
 		User:     *user,
@@ -41,7 +40,7 @@ func TestValid(t *testing.T) {
 		t.Error(err)
 	}
 	// one year api key
-	userApiKey := authentication_apikey.UserApiKey{
+	userApiKey := UserApiKey{
 		AppName:  "dirt",
 		Duration: time.Duration(time.Hour * 24 * 365),
 		User:     *user,
@@ -53,7 +52,7 @@ func TestValid(t *testing.T) {
 
 	apiKeyUser := result.Key
 	t.Log(apiKeyUser)
-	apiKey, err := authentication_apikey.GetApiKeyByHeaderValue(apiKeyUser)
+	apiKey, err := GetApiKeyByHeaderValue(apiKeyUser)
 	t.Logf("err %s", err)
 
 	t.Log("No error here")

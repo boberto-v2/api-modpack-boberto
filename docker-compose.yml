@@ -1,17 +1,20 @@
+# //TODO: show the docker compose to Daniel.
+
 version: '3.8'
 
 services:
-    app:
-        build: 
-            context: .
-        ports:
-            - 9000:80
-        environment:
-            - PG_URI=postgres://root:test@postgree_hostname/test?sslmode=disable
-        volumes:
-            - ./:/app/
-        restart: unless-stopped
-        tty: true
+    # At this moment, we dont need a docker compose mapping the dockerfile.
+    # app:
+    #     build: 
+    #         context: .
+    #     ports:
+    #         - 9000:80
+    #     environment:
+    #         - PG_URI=postgres://root:test@postgree_hostname/test?sslmode=disable
+    #     volumes:
+    #         - ./:/app/
+    #     restart: unless-stopped
+    #     tty: true
     postgres:
         image: postgres
         hostname: postgree_hostname
@@ -25,7 +28,7 @@ services:
             - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "pg_isready"]
+            test: [ "CMD", "pg_isready" ]
             interval: 10s
             timeout: 5s
             retries: 5
