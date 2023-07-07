@@ -54,8 +54,6 @@ func TestValid(t *testing.T) {
 	t.Log(apiKeyUser)
 	apiKey, err := GetApiKeyByHeaderValue(apiKeyUser)
 	t.Logf("err %s", err)
-
-	t.Log("No error here")
 	t.Log(apiKey)
 	assert.NoError(t, err)
 }
