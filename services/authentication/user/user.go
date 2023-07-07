@@ -8,7 +8,7 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	user_database "github.com/brutalzinn/boberto-modpack-api/database/user"
-	"github.com/brutalzinn/boberto-modpack-api/database/user/entities"
+	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 	"github.com/brutalzinn/boberto-modpack-api/services/authentication/user/models"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -41,7 +41,7 @@ func VerifyJWT(tokenJWT string) (models.Claims, error) {
 	return claims, err
 }
 
-func GetCurrentUser(ctx context.Context) (user *entities.User, err error) {
+func GetCurrentUser(ctx context.Context) (user *entities_user.User, err error) {
 	user_id, ok := ctx.Value("user_id").(string)
 	if !ok {
 		return nil, errors.New("No authorized to use this route")
@@ -55,8 +55,8 @@ func Authentication(email string, password string) (userId string, err error) {
 	if err != nil {
 		return "", errors.New("Invalid user")
 	}
-	validPassword := common.CheckPasswordHash(password, user.Password)
-	if validPassword == false {
+	validPassword := common.BcryptCheckHash(password, user.Password)
+	if !validPassword {
 		return "", errors.New("Invalid user")
 	}
 	return user.ID, nil

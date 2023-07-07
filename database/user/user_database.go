@@ -2,7 +2,7 @@ package user_database
 
 import (
 	"github.com/brutalzinn/boberto-modpack-api/database"
-	"github.com/brutalzinn/boberto-modpack-api/database/user/entities"
+	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 )
 
 func Delete(id string) (int64, error) {
@@ -18,7 +18,7 @@ func Delete(id string) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func Get(id string) (user *entities.User, err error) {
+func Get(id string) (user *entities_user.User, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return
@@ -34,7 +34,7 @@ func Get(id string) (user *entities.User, err error) {
 	return
 }
 
-func Insert(user entities.User) (id string, err error) {
+func Insert(user entities_user.User) (id string, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return
@@ -50,7 +50,7 @@ func Insert(user entities.User) (id string, err error) {
 		user.Username).Scan(&id)
 	return
 }
-func Update(id int64, user entities.User) (int64, error) {
+func Update(id int64, user entities_user.User) (int64, error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return 0, err
@@ -74,7 +74,7 @@ func Update(id int64, user entities.User) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func FindByEmail(email string) (user entities.User, err error) {
+func FindByEmail(email string) (user entities_user.User, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return

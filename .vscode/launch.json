@@ -9,7 +9,10 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "main.go"
+            "program": "main.go",
+            "env": {
+                "PG_URI": "postgres://root:test@127.0.0.1/test?sslmode=disable"
+            }
         }
     ]
 }

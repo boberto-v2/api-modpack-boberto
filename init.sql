@@ -14,11 +14,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS users_api_key (
     "id" uuid DEFAULT uuid_generate_v4(),
-	"apikey" text NOT NULL,
+	"key" text NOT NULL,
+    "enabled" boolean default true,
 	"scopes" text NOT NULL,
     "app_name" text NOT NULL,
 	"user_id" uuid NOT NULL,
-    "description" text NOT NULL,
+    "duration" int default 0,
     "expire_at" timestamp default NULL,
 	"create_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 	"update_at" timestamp default NULL,

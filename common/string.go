@@ -7,13 +7,13 @@ import (
 )
 
 func NormalizeString(input string) string {
-	outLower := strings.ToLower(input)
-	out := strings.ReplaceAll(outLower, " ", "_")
-	return out
+	resultLower := strings.ToLower(input)
+	result := strings.ReplaceAll(resultLower, " ", "_")
+	return result
 }
 
 func GenerateUUID() string {
 	id, _ := uuid.NewV4()
-	out := id.String()
-	return out
+	result := id.String()
+	return result
 }

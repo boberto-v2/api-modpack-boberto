@@ -4,40 +4,49 @@ import (
 	"time"
 
 	"github.com/brutalzinn/boberto-modpack-api/database"
-	"github.com/brutalzinn/boberto-modpack-api/database/apikey/entities"
+	entities_apikey "github.com/brutalzinn/boberto-modpack-api/database/apikey/entities"
 )
 
-func Insert(apiKey entities.ApiKey) {
+func Insert(apiKey entities_apikey.ApiKey) (string, error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
-		return
+		return "", err
 	}
 	defer conn.Close(ctx)
 	sql := `INSERT INTO users_api_key 
-	(key, scopes, user_id, expire_at) 
-	VALUES ($1, $2, $3, $4, $5) 
+	(key, scopes, app_name, user_id, expire_at, duration, enabled) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7) 
 	RETURNING id`
-	err = conn.QueryRow(ctx, sql,
+	err = conn.QueryRow(
+		ctx,
+		sql,
 		apiKey.Key,
 		apiKey.Scopes,
+		apiKey.AppName,
 		apiKey.UserId,
-		apiKey.ExpireAt).Scan(&apiKey.ID)
-	return
+		apiKey.ExpireAt,
+		apiKey.Duration,
+		apiKey.Enabled,
+	).Scan(&apiKey.ID)
+	return apiKey.ID, err
 }
 
-func Update(apiKey entities.ApiKey) (int64, error) {
+func Update(apiKey entities_apikey.ApiKey) (int64, error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return 0, err
 	}
 	defer conn.Close(ctx)
-	sql := `UPDATE users_api_key set 
-	key=$1,
-	scopes=$2,
-	expire_at=$3,
-	update_at=$4
-	where id=$5`
-	res, err := conn.Exec(ctx, sql,
+	sql := `
+		UPDATE users_api_key set
+		 key=$1,
+		scopes=$2,
+		expire_at=$3,
+		update_at=$4
+		where id=$5`
+	res, err := conn.Exec(
+		ctx,
+		sql,
 		apiKey.Key,
 		apiKey.Scopes,
 		apiKey.ExpireAt,
@@ -49,7 +58,7 @@ func Update(apiKey entities.ApiKey) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func Delete(apiKey entities.ApiKey) (int64, error) {
+func Delete(apiKey entities_apikey.ApiKey) (int64, error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return 0, nil
@@ -62,19 +71,43 @@ func Delete(apiKey entities.ApiKey) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func Get(keyId string) (apiKey entities.ApiKey, err error) {
+func Get(keyId string) (apiKey entities_apikey.ApiKey, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return
 	}
 	defer conn.Close(ctx)
 	row := conn.QueryRow(ctx, "SELECT * FROM users_api_key WHERE id=$1", apiKey.ID)
-	err = row.Scan(apiKey.ID,
+	err = row.Scan(
+		apiKey.ID,
 		apiKey.Key,
 		apiKey.Scopes,
 		apiKey.UserId,
 		apiKey.ExpireAt,
 		apiKey.CreateAt,
 		apiKey.UpdateAt)
+	return
+}
+
+func GetByAppNameAndKey(appName string) (apiKey entities_apikey.ApiKey, err error) {
+	conn, err, ctx := database.OpenConnection()
+	if err != nil {
+		return
+	}
+	defer conn.Close(ctx)
+	row := conn.QueryRow(ctx,
+		`SELECT id, key, app_name, scopes, expire_at, enabled, duration
+		 FROM users_api_key
+		 WHERE app_name=$1`,
+		appName,
+	)
+	err = row.Scan(
+		&apiKey.ID,
+		&apiKey.Key,
+		&apiKey.AppName,
+		&apiKey.Scopes,
+		&apiKey.ExpireAt,
+		&apiKey.Enabled,
+		&apiKey.Duration)
 	return
 }

@@ -2,72 +2,62 @@ package authentication_apikey
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
-	config "github.com/brutalzinn/boberto-modpack-api/configs"
-	"github.com/brutalzinn/boberto-modpack-api/database/user/entities"
+	apikey_database "github.com/brutalzinn/boberto-modpack-api/database/apikey"
+	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 )
-
-var cfg = config.GetConfig()
 
 type ApiKey struct {
 	Key      string
 	AppName  string
-	User     entities.User
+	Enabled  bool
+	User     entities_user.User
 	Duration time.Duration
 	ExpireAt time.Time
 	CreateAt time.Time
 	UpdateAt time.Time
 }
 
-func New(duration time.Duration, user entities.User) *ApiKey {
-	apiKey := &ApiKey{
-		Duration: duration,
-		User:     user,
+func New(appName string, key string) ApiKey {
+	apiKey := ApiKey{
+		Key:     key,
+		AppName: appName,
 	}
 	return apiKey
 }
 
-func (apiKey *ApiKey) Mount() *ApiKey {
-	key, _ := createKey()
-	apiKey.Key = key
-
-}
-
-func (apiKey ApiKey) Verify() (bool, error) {
-	return false, nil
-}
-
-func isKeyExpired(expireAt time.Time) bool {
-	currentDateTime := time.Now()
-	if expireAt.After(currentDateTime) {
-		return false
-	}
-	return true
-}
-func createApiPrefix(apiKeyCrypt string, appName string) string {
-	return fmt.Sprintf("%s-%s", appName, apiKeyCrypt)
-}
-
-func removeApiPrefix(apiKeyCrypt string) (string, error) {
-	apikeyformat := strings.Split(apiKeyCrypt, "-")
-	if len(apikeyformat) != 2 {
-		return "", errors.New("Api key invalid")
-	}
-	apiKey := apikeyformat[1]
-	return apiKey, nil
-}
-
-func createKey() (string, error) {
-	uuid := common.GenerateUUID()
-	keyhash, err := common.Encrypt(uuid, cfg.Authentication.AesKey)
+func GetApiKeyByHeaderValue(headerValue string) (*ApiKey, error) {
+	apiKeyValue, err := extractApiKey(headerValue)
 	if err != nil {
-		return "", errors.New("Invalid aes key")
+		return nil, err
 	}
-	return keyhash, nil
+	result, err := apikey_database.GetByAppNameAndKey(apiKeyValue.AppName)
+	if err != nil {
+		return nil, err
+	}
+	apiKey := ApiKey{
+		AppName:  result.AppName,
+		Enabled:  result.Enabled,
+		ExpireAt: result.ExpireAt,
+		Duration: time.Duration(time.Duration(result.Duration) * 24 * time.Hour),
+		Key:      result.Key,
+	}
+	isValid := apiKey.validade(apiKeyValue.Key)
+	if !isValid {
+		return nil, errors.New("Api key expired or invalid")
+	}
+	return &apiKey, nil
+}
+
+func (apiKey ApiKey) validade(key string) bool {
+	enabled := apiKey.Enabled
+	isExpired := apiKey.IsKeyExpired()
+	isValidHash := common.BcryptCheckHash(key, apiKey.Key)
+	//why this breaks my heart?
+	isValid := enabled && !isExpired && isValidHash
+	return isValid
 }
 
 func (apiKey *ApiKey) AddExpire(expireAt time.Duration) *ApiKey {
@@ -75,11 +65,22 @@ func (apiKey *ApiKey) AddExpire(expireAt time.Duration) *ApiKey {
 	return apiKey
 }
 
-func (apiKey *ApiKey) Regenerate() *ApiKey {
+func (apiKey *ApiKey) Regenerate() (*ApiKey, error) {
+	apiKeyResult, err := generate(apiKey.AppName)
+	if err != nil {
+		return nil, err
+	}
+	apiKey.Key = apiKeyResult.Key
 	apiKey.ExpireAt = time.Now().Add(apiKey.Duration)
-	return apiKey
+	return apiKey, nil
 }
 
 func (apiKey *ApiKey) Revoke() {
+	apiKey.Enabled = false
+}
 
+func (apiKey *ApiKey) IsKeyExpired() bool {
+	currentDateTime := time.Now()
+	result := apiKey.ExpireAt.After(currentDateTime)
+	return result
 }
