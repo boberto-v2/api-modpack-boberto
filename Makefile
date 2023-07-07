@@ -8,11 +8,12 @@ user := root
 database := test
 
 dev:
+	@echo "${CYAN} Running API-MODPACK-TEST ${CYAN}"
 	docker-compose up -d
 	@echo "docker development setup started."
 	
 dev-build:
-	docker-compose up --build
+	docker-compose up -d --build
 	@echo "docker compose image rebuilded."
 
 stop:
@@ -21,8 +22,11 @@ stop:
 	@echo "Docker compose Stopped"
 
 swagger:
-	docker-compose exec -i app swag init
-	@echo "Swagger doc generated"
+	@echo "${CYAN} Creating swagger docs.. ${CYAN}"
+	@docker-compose up -d
+	@sleep 3 && \
+		docker exec -i app swag init
+	@docker-compose down
 
 test:
 	@echo "${CYAN} Running API-MODPACK-TEST ${CYAN}"

@@ -3,20 +3,22 @@
 version: '3.8'
 
 services:
-    # At this moment, we dont need a docker compose mapping the dockerfile.
-    # app:
-    #     build: 
-    #         context: .
-    #     ports:
-    #         - 9000:80
-    #     environment:
-    #         - PG_URI=postgres://root:test@postgree_hostname/test?sslmode=disable
-    #     volumes:
-    #         - ./:/app/
-    #     restart: unless-stopped
-    #     tty: true
+    # At this moment, we dont need a docker compose mapping the dockerfile. but we need a docker-compose to dev settings..
+    app:
+        container_name: api-modpack-boberto
+        build:
+            context: .
+        ports:
+            - 9000:80
+        environment:
+            - PG_URI=postgres://root:test@postgree_hostname/test?sslmode=disable
+        volumes:
+            - ./:/app/
+        restart: unless-stopped
+        tty: true
     postgres:
         image: postgres
+        container_name: api-modpack-boberto-db
         hostname: postgree_hostname
         environment:
             - POSTGRES_USER=root

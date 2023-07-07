@@ -16,4 +16,6 @@ func SkipCI(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping testing in CI environment")
 	}
+	// and we put the PG_URI env here if we attack this form.
+	t.Setenv("PG_URI", "postgres://root:test@127.0.0.1:5555/test?sslmode=disable")
 }
