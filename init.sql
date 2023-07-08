@@ -25,3 +25,12 @@ CREATE TABLE IF NOT EXISTS users_api_key (
 	"update_at" timestamp default NULL,
     CONSTRAINT users_api_key_pkey PRIMARY KEY (id)
 );
+
+
+ALTER TABLE users_api_key
+ADD FOREIGN KEY ("user_id") REFERENCES users (id)
+ON DELETE CASCADE
+DEFERRABLE INITIALLY DEFERRED;
+
+
+INSERT INTO users ("id", "email", "password", "username") VALUES('ab7d7136-6c24-4cd0-ba30-97ff0110ecac'::uuid, 'test', '$2a$15$zqJBJTKH7LZbTSQHhnNzeOx9VjcGwv3HamUksu8VQ81E/WbRJCLPW', 'usertest');

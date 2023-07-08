@@ -89,7 +89,7 @@ func Get(keyId string) (apiKey entities_apikey.ApiKey, err error) {
 	return
 }
 
-func GetByAppNameAndKey(appName string) (apiKey entities_apikey.ApiKey, err error) {
+func GetByAppName(appName string) (apiKey entities_apikey.ApiKey, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return

@@ -33,7 +33,7 @@ func GetApiKeyByHeaderValue(headerValue string) (*ApiKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	result, err := apikey_database.GetByAppNameAndKey(apiKeyValue.AppName)
+	result, err := apikey_database.GetByAppName(apiKeyValue.AppName)
 	if err != nil {
 		return nil, err
 	}

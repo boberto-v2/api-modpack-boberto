@@ -23,19 +23,18 @@ import (
 // 8. Explain how we apply rest at the routes and how he will consume the hypermedia routes at nextjs backend processor.
 
 func main() {
-	router := gin.Default()
 	err := config.Load()
 	if err != nil {
 		panic(err)
 	}
 	config := config.GetConfig()
-	modpack_cache.New()
+	router := gin.Default()
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
-
+	modpack_cache.New()
 	routes.CreateRoutes(router)
 	router.Run(fmt.Sprintf(":%s", config.API.Port))
 }

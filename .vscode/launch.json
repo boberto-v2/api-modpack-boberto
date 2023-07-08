@@ -11,7 +11,7 @@
             "mode": "auto",
             "program": "main.go",
             "env": {
-                "PG_URI": "postgres://root:test@127.0.0.1/test?sslmode=disable"
+                "PG_URI": "postgres://root:test@127.0.0.1:5555/test?sslmode=disable"
             }
         }
     ]

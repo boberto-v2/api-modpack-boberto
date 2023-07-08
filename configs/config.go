@@ -2,6 +2,8 @@ package config
 
 import "github.com/spf13/viper"
 
+var cfg *config
+
 type config struct {
 	API            APIConfig
 	Authentication AuthConfig
@@ -20,10 +22,8 @@ type AuthConfig struct {
 	AesKey     string
 }
 
-var cfg *config
-
 func init() {
-	viper.SetDefault("api.port", 8000)
+	viper.SetDefault("api.port", "8000")
 	viper.SetDefault("api.publicpath", "public/modpacks")
 	viper.SetDefault("api.manifest_name", "manifest.json")
 }

@@ -3,6 +3,7 @@ module github.com/brutalzinn/boberto-modpack-api
 go 1.20
 
 require (
+	github.com/brutalzinn/go-easy-rest v1.0.3
 	github.com/gin-gonic/gin v1.9.1
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.5.0
