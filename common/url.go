@@ -10,3 +10,12 @@ func GetUrl(ctx *gin.Context) string {
 	url := scheme + ctx.Request.Host
 	return url
 }
+
+func GetSocketUrl(ctx *gin.Context) string {
+	scheme := "ws://"
+	if ctx.Request.TLS != nil {
+		scheme = "wss://"
+	}
+	url := scheme + ctx.Request.Host
+	return url
+}

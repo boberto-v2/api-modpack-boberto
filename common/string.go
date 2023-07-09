@@ -3,9 +3,11 @@ package common
 import (
 	"strings"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
+// "github.com/gorilla/mux"
+// The name mux stands for "HTTP request multiplexer".
 func NormalizeString(input string) string {
 	resultLower := strings.ToLower(input)
 	result := strings.ReplaceAll(resultLower, " ", "_")
@@ -13,7 +15,7 @@ func NormalizeString(input string) string {
 }
 
 func GenerateUUID() string {
-	id, _ := uuid.NewV4()
+	id := uuid.New()
 	result := id.String()
 	return result
 }

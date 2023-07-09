@@ -1,6 +1,7 @@
 package routes
 
 import (
+	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,5 +21,6 @@ func CreateRoutes(router gin.IRouter) {
 	application := router.Group("/application")
 	{
 		CreateUploadRoute(application)
+		application.GET("/event", event_service.WSHandler)
 	}
 }
