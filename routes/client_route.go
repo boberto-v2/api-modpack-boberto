@@ -37,26 +37,30 @@ func CreateClientRoute(router gin.IRouter) {
 		file_service.CreateDirectoryIfNotExists(modpackPath)
 		modpackCache := modpack_cache_models.
 			ModPackCache{
-			Name: modpack.Name,
+			Environment: modpack_models.Client.GetFolderName(),
+			Name:        modpack.Name,
 		}.New()
 		modpack_cache.Create(modpackCache)
 		modpackCache.Status = modpack_models.PendingClientFiles
 		modpack_cache.Replace(modpack.Id, modpackCache)
-		uploadCache := upload_service.Create(modpack_models.Client.GetFolderName())
-		//mount robject esource representation of modpack
+		//create upload ticket
+		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
+		uploadCache := upload_service.Create(outputDir)
 		url := common.GetUrl(ctx)
 		resourceData := rest.NewResData()
 		resourceData.Add(rest.Resource{
-			Object:    "modpack",
+			Object:    "modpack_object",
 			Attribute: modpackCache,
 			Link: []rest.Link{
 				{
-					Rel:  "_self",
-					Href: fmt.Sprintf("%s/modpack/%s", url, modpackCache.Id),
+					Rel:    "_self",
+					Href:   fmt.Sprintf("%s/modpack/%s", url, modpackCache.Id),
+					Method: "GET",
 				},
 				{
-					Rel:  "upload_client_file",
-					Href: fmt.Sprintf("%s/upload/%s", url, uploadCache.Id),
+					Rel:    "upload_file",
+					Href:   fmt.Sprintf("%s/application/upload/%s", url, uploadCache.Id),
+					Method: "POST",
 				},
 			},
 		})

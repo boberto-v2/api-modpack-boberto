@@ -8,6 +8,7 @@ import (
 type ModPackCache struct {
 	Id             string                       `json:"id"`
 	Name           string                       `json:"name"`
+	Environment    string                       `json:"environment"`
 	Status         modpack_models.ModPackStatus `json:"status"`
 	ManifestUrl    string                       `json:"manifest_url"`
 	NormalizedName string                       `json:"normalized_name"`

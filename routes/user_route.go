@@ -3,16 +3,15 @@ package routes
 import (
 	"net/http"
 
-	login_request "github.com/brutalzinn/boberto-modpack-api/domain/models"
+	"github.com/brutalzinn/boberto-modpack-api/domain/request"
 	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
 	"github.com/gin-gonic/gin"
 )
 
-//TODO: Define how we will handle with user token.
-//
+// TODO: Define how we will handle with user token.
 func CreateUserRoutes(router gin.IRouter) {
 	router.POST("/login", func(ctx *gin.Context) {
-		var userRequest login_request.LoginRequest
+		var userRequest request.LoginRequest
 		if err := ctx.ShouldBindJSON(&userRequest); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

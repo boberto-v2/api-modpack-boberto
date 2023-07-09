@@ -16,4 +16,9 @@ func CreateRoutes(router gin.IRouter) {
 	{
 		CreateClientRoute(client)
 	}
+
+	application := router.Group("/application")
+	{
+		CreateUploadRoute(application)
+	}
 }
