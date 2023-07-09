@@ -88,6 +88,33 @@ func Get(keyId string) (apiKey entities_apikey.ApiKey, err error) {
 		apiKey.UpdateAt)
 	return
 }
+func GetAll(userId string) (apiKeys []entities_apikey.ApiKey, err error) {
+	conn, err, ctx := database.OpenConnection()
+	if err != nil {
+		return
+	}
+	defer conn.Close(ctx)
+	rows, err := conn.Query(ctx, "SELECT * FROM users_api_key WHERE user_id=$1", userId)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var apiKey entities_apikey.ApiKey
+		err = rows.Scan(
+			&apiKey.ID,
+			&apiKey.Key,
+			&apiKey.Scopes,
+			&apiKey.UserId,
+			&apiKey.ExpireAt,
+			&apiKey.CreateAt,
+			&apiKey.UpdateAt)
+		if err != nil {
+			continue
+		}
+		apiKeys = append(apiKeys, apiKey)
+	}
+	return
+}
 
 func GetByAppName(appName string) (apiKey entities_apikey.ApiKey, err error) {
 	conn, err, ctx := database.OpenConnection()

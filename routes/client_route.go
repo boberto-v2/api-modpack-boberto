@@ -16,7 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TODO: Show daniel how we will handle with files for all necessaries uploads
 func CreateClientRoute(router gin.IRouter) {
 
 	router.GET("/modpack/:id", func(ctx *gin.Context) {
@@ -25,7 +24,7 @@ func CreateClientRoute(router gin.IRouter) {
 		ctx.JSON(http.StatusOK, &modpack)
 	})
 
-	router.POST("/modpacks/create", func(ctx *gin.Context) {
+	router.POST("/modpack/create", func(ctx *gin.Context) {
 		var cfg = config.GetConfig()
 		var modpack modpack_models.MinecraftModPack
 		if err := ctx.ShouldBindJSON(&modpack); err != nil {
@@ -34,7 +33,7 @@ func CreateClientRoute(router gin.IRouter) {
 		}
 		nameNormalized := common.NormalizeString(modpack.Name)
 		modpackPath := filepath.Join(cfg.API.PublicPath, nameNormalized)
-		file_service.CreateDirectoryIfNotExists(modpackPath)
+		file_service.CreateAndDestroyDirectory(modpackPath)
 		modpackCache := modpack_cache_models.
 			ModPackCache{
 			Environment: modpack_models.Client.GetFolderName(),
@@ -43,7 +42,6 @@ func CreateClientRoute(router gin.IRouter) {
 		modpack_cache.Create(modpackCache)
 		modpackCache.Status = modpack_models.PendingClientFiles
 		modpack_cache.Replace(modpack.Id, modpackCache)
-		//create upload ticket
 		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
 		uploadCache := upload_service.Create(outputDir)
 		url := common.GetUrl(ctx)
@@ -54,7 +52,7 @@ func CreateClientRoute(router gin.IRouter) {
 			Link: []rest.Link{
 				{
 					Rel:    "_self",
-					Href:   fmt.Sprintf("%s/modpack/%s", url, modpackCache.Id),
+					Href:   fmt.Sprintf("%s/game/modpack/%s", url, modpackCache.Id),
 					Method: "GET",
 				},
 				{
@@ -65,5 +63,43 @@ func CreateClientRoute(router gin.IRouter) {
 			},
 		})
 		ctx.JSON(http.StatusOK, resourceData)
+	})
+
+	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
+		id := ctx.Params.ByName("id")
+		var modpackFtp modpack_models.ModPackFtp
+		if err := ctx.ShouldBindJSON(&modpackFtp); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		modpackCache, found := modpack_cache.GetById(id)
+		if !found {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
+			return
+		}
+		url := common.GetUrl(ctx)
+		resourceData := rest.NewResData()
+		resourceData.Add(rest.Resource{
+			Object:    "modpack_object",
+			Attribute: modpackCache,
+			Link: []rest.Link{
+				{
+					Rel:    "_self",
+					Href:   fmt.Sprintf("%s/game/client/modpack/%s", url, modpackCache.Id),
+					Method: "GET",
+				},
+				{
+					Rel:    "delete",
+					Href:   fmt.Sprintf("%s/game/client/modpack/%s", url, modpackCache.Id),
+					Method: "DELETE",
+				},
+				{
+					Rel:    "update",
+					Href:   fmt.Sprintf("%s/game/client/modpack/%s", url, modpackCache.Id),
+					Method: "PUT",
+				},
+			},
+		})
+		ctx.JSON(http.StatusOK, gin.H{"data": resourceData})
 	})
 }

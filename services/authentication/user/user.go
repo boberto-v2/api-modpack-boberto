@@ -13,9 +13,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-var cfg = config.GetConfig()
-
 func GenerateJWT(userId string) (string, error) {
+	cfg := config.GetConfig()
 	secretKey := config.GetJWTSecret()
 	expirationTime := time.Now().Add(time.Duration(cfg.Authentication.Expiration) * time.Second)
 	claims := models.Claims{
@@ -47,6 +46,9 @@ func GetCurrentUser(ctx context.Context) (user *entities_user.User, err error) {
 		return nil, errors.New("No authorized to use this route")
 	}
 	user, err = user_database.Get(user_id)
+	if err != nil {
+		return nil, errors.New("No authorized to use this route")
+	}
 	return user, nil
 }
 

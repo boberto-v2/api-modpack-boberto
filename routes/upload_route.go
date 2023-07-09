@@ -3,17 +3,14 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
 	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
 
 // TODO: Show daniel how we will handle with files for all necessaries uploads
-
 func CreateUploadRoute(router gin.IRouter) {
 	router.POST("/upload/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
@@ -29,16 +26,6 @@ func CreateUploadRoute(router gin.IRouter) {
 		}
 		files := form.File["files"]
 		go upload_service.SaveFiles(id, files)
-
-		go func() {
-
-			for {
-				fmt.Print("testtttt")
-				event_service.Emit(id, []byte("test message"))
-				time.Sleep(3 * time.Second)
-			}
-
-		}()
 		url := common.GetSocketUrl(ctx)
 		resourceData := rest.NewResData()
 		resourceData.Add(rest.Resource{
@@ -46,7 +33,7 @@ func CreateUploadRoute(router gin.IRouter) {
 			Attribute: "",
 			Link: []rest.Link{
 				{
-					Rel:    "event_upload",
+					Rel:    "websocket_event_upload",
 					Href:   fmt.Sprintf("%s/application/event?name=%s", url, id),
 					Method: "GET",
 				},

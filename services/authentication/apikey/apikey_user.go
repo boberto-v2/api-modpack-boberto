@@ -39,7 +39,7 @@ func (userApiKey *UserApiKey) Generate() (*ApiKeyResult, error) {
 		UserId:   userApiKey.User.ID,
 		AppName:  userApiKey.AppName,
 		Duration: 365,
-		Scopes:   "default",
+		Scopes:   "defaut",
 		Enabled:  true,
 	}
 	_, err = apikey_database.Insert(apiKeyEntity)

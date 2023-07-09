@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func WSHandler(ctx *gin.Context) {
+func WebSocketHandler(ctx *gin.Context) {
 	wsSession, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		log.Fatal(err)

@@ -29,7 +29,7 @@ func Create(outputDir string) upload_cache_models.UploadCache {
 func GetUploadPath(id string) (string, error) {
 	uploadCache, found := upload_cache.GetById(id)
 	if !found {
-		return "", errors.New("upload token expired or invalid")
+		return "", errors.New("The token provided is invalid or expired.")
 	}
 	return uploadCache.OutputDir, nil
 }

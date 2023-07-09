@@ -36,11 +36,19 @@ func CreateDirectoryIfNotExists(dirPath string) error {
 	return err
 }
 
-func IsDirectoryExists(dirPath string) bool {
-	_, err := os.Stat(dirPath)
-	dirExists := os.IsExist(err)
-	return dirExists
-
+func CreateAndDestroyDirectory(dirPath string) error {
+	fmt.Println("Create and destroy if already exists:", dirPath)
+	err := os.RemoveAll(dirPath)
+	fmt.Println("Remove directory:", dirPath)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(dirPath, 0755)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Directory created:", dirPath)
+	return err
 }
 
 func Unzip(zipPath string, output string) {

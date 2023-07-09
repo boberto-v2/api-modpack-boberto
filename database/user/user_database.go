@@ -24,13 +24,12 @@ func Get(id string) (user *entities_user.User, err error) {
 		return
 	}
 	defer conn.Close(ctx)
-	row := conn.QueryRow(ctx, "SELECT * FROM users WHERE id=$1", id)
+	user = &entities_user.User{}
+	row := conn.QueryRow(ctx, "SELECT id, email, username FROM users WHERE id=$1", id)
 	err = row.Scan(
 		&user.ID,
 		&user.Email,
-		&user.Username,
-		&user.CreateAt,
-		&user.UpdateAt)
+		&user.Username)
 	return
 }
 
@@ -80,7 +79,7 @@ func FindByEmail(email string) (user entities_user.User, err error) {
 		return
 	}
 	defer conn.Close(ctx)
-	row := conn.QueryRow(ctx, "SELECT id, password FROM users WHERE email=$1", email)
-	err = row.Scan(user.ID, user.Password)
+	row := conn.QueryRow(ctx, "SELECT id, password FROM users WHERE email=$1 limit 1", email)
+	err = row.Scan(&user.ID, &user.Password)
 	return
 }
