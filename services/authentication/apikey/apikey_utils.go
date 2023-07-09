@@ -9,30 +9,21 @@ import (
 )
 
 func createApiPrefix(appName string, apiKeyCrypt string) string {
-	return fmt.Sprintf("%s_%s", appName, apiKeyCrypt)
+	return fmt.Sprintf("%s&%s", appName, apiKeyCrypt)
 }
 
-func extractApiKey(apiKeyCrypt string) (*ApiKey, error) {
-	apikeyformat := strings.Split(apiKeyCrypt, "_")
-	if len(apikeyformat) != 2 {
-		return nil, errors.New("Api key invalid")
+func extractAppName(apiKeyCrypt string) (string, error) {
+	appName, _, found := strings.Cut(apiKeyCrypt, "&")
+	if !found {
+		return "", errors.New("invalid api key")
 	}
-	apiKeyDecoded, err := common.DecodeBase64(apikeyformat[1])
-	if err != nil {
-		return nil, errors.New("Api key invalid")
-	}
-	apiKey := ApiKey{
-		AppName: apikeyformat[0],
-		Key:     string(apiKeyDecoded),
-	}
-	return &apiKey, nil
+	return appName, nil
 }
 
 func generate(appName string) (*ApiKeyResult, error) {
 	uuid := common.GenerateUUID()
-	uuidBase64 := common.EncodeBase64([]byte(uuid))
-	appNameNormalized := common.NormalizeString(appName)
-	key := createApiPrefix(appNameNormalized, uuidBase64)
+	base64 := common.EncodeBase64([]byte(uuid))
+	key := createApiPrefix(appName, base64)
 	keyHash, err := common.BcryptHash(key, 4)
 	if err != nil {
 		return nil, errors.New("cant generate api key")
@@ -42,4 +33,10 @@ func generate(appName string) (*ApiKeyResult, error) {
 		Result: keyHash,
 	}
 	return result, nil
+}
+
+func normalizeAppName(appName string) string {
+	randomFactor := common.CreateRandomFactor()
+	result := fmt.Sprintf("%s_%s", appName, randomFactor)
+	return result
 }

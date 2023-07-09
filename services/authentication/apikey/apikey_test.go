@@ -20,7 +20,7 @@ func TestGenerate(t *testing.T) {
 	// one year api key
 	userApiKey := UserApiKey{
 		AppName:  "bricks",
-		Duration: time.Duration(time.Hour * 24 * 365),
+		ExpireAt: time.Now().Add(time.Duration(365) * time.Hour * 24),
 		User:     *user,
 	}
 	result, err := userApiKey.Generate()
@@ -42,7 +42,7 @@ func TestValid(t *testing.T) {
 	// one year api key
 	userApiKey := UserApiKey{
 		AppName:  "dirt",
-		Duration: time.Duration(time.Hour * 24 * 365),
+		ExpireAt: time.Now().Add(time.Duration(365) * time.Hour * 24),
 		User:     *user,
 	}
 	result, err := userApiKey.Generate()

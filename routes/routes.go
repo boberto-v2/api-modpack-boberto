@@ -26,7 +26,7 @@ func CreateRoutes(router gin.IRouter) {
 			CreateClientRoute(client)
 		}
 	}
-	application := router.Group("/application")
+	application := router.Group("/application", middlewares.ApiKeyMiddleware())
 	{
 		CreateUploadRoute(application)
 		CreateEventRoute(application)

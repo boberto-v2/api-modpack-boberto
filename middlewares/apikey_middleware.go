@@ -16,5 +16,6 @@ func ApiKeyMiddleware() gin.HandlerFunc {
 			return
 		}
 		ctx.Set("user_id", apiKeyHeader.User.ID)
+		ctx.Next()
 	}
 }

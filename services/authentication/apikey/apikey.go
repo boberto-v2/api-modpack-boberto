@@ -14,7 +14,7 @@ type ApiKey struct {
 	AppName  string
 	Enabled  bool
 	User     entities_user.User
-	Duration time.Duration
+	Duration int64
 	ExpireAt time.Time
 	CreateAt time.Time
 	UpdateAt time.Time
@@ -29,11 +29,11 @@ func New(appName string, key string) ApiKey {
 }
 
 func GetApiKeyByHeaderValue(headerValue string) (*ApiKey, error) {
-	apiKeyValue, err := extractApiKey(headerValue)
+	appName, err := extractAppName(headerValue)
 	if err != nil {
 		return nil, err
 	}
-	result, err := apikey_database.GetByAppName(apiKeyValue.AppName)
+	result, err := apikey_database.GetByAppName(appName)
 	if err != nil {
 		return nil, err
 	}
@@ -41,17 +41,19 @@ func GetApiKeyByHeaderValue(headerValue string) (*ApiKey, error) {
 		AppName:  result.AppName,
 		Enabled:  result.Enabled,
 		ExpireAt: result.ExpireAt,
-		Duration: time.Duration(time.Duration(result.Duration) * 24 * time.Hour),
 		Key:      result.Key,
+		User: entities_user.User{
+			ID: result.UserId,
+		},
 	}
-	isValid := apiKey.validade(apiKeyValue.Key)
+	isValid := apiKey.Validate(headerValue)
 	if !isValid {
-		return nil, errors.New("Api key expired or invalid")
+		return nil, errors.New("api key expired or invalid")
 	}
 	return &apiKey, nil
 }
 
-func (apiKey ApiKey) validade(key string) bool {
+func (apiKey ApiKey) Validate(key string) bool {
 	enabled := apiKey.Enabled
 	isExpired := apiKey.IsKeyExpired()
 	isValidHash := common.BcryptCheckHash(key, apiKey.Key)
@@ -65,22 +67,12 @@ func (apiKey *ApiKey) AddExpire(expireAt time.Duration) *ApiKey {
 	return apiKey
 }
 
-func (apiKey *ApiKey) Regenerate() (*ApiKey, error) {
-	apiKeyResult, err := generate(apiKey.AppName)
-	if err != nil {
-		return nil, err
-	}
-	apiKey.Key = apiKeyResult.Key
-	apiKey.ExpireAt = time.Now().Add(apiKey.Duration)
-	return apiKey, nil
-}
-
 func (apiKey *ApiKey) Revoke() {
 	apiKey.Enabled = false
 }
 
 func (apiKey *ApiKey) IsKeyExpired() bool {
 	currentDateTime := time.Now()
-	result := apiKey.ExpireAt.After(currentDateTime)
+	result := currentDateTime.After(apiKey.ExpireAt)
 	return result
 }

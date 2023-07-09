@@ -41,17 +41,19 @@ func Update(apiKey entities_apikey.ApiKey) (int64, error) {
 		UPDATE users_api_key set
 		 key=$1,
 		scopes=$2,
-		expire_at=$3,
-		update_at=$4
-		where id=$5`
+		duration=$3,
+		expire_at=$4,
+		update_at=$5
+		where id=$6`
 	res, err := conn.Exec(
 		ctx,
 		sql,
-		apiKey.Key,
-		apiKey.Scopes,
-		apiKey.ExpireAt,
+		&apiKey.Key,
+		&apiKey.Scopes,
+		&apiKey.Duration,
+		&apiKey.ExpireAt,
 		time.Now(),
-		apiKey.ID)
+		&apiKey.ID)
 	if err != nil {
 		return 0, err
 	}
@@ -71,21 +73,20 @@ func Delete(apiKey entities_apikey.ApiKey) (int64, error) {
 	return res.RowsAffected(), nil
 }
 
-func Get(keyId string) (apiKey entities_apikey.ApiKey, err error) {
+func Get(keyId string, user_id string) (apiKey entities_apikey.ApiKey, err error) {
 	conn, err, ctx := database.OpenConnection()
 	if err != nil {
 		return
 	}
 	defer conn.Close(ctx)
-	row := conn.QueryRow(ctx, "SELECT * FROM users_api_key WHERE id=$1", apiKey.ID)
+	row := conn.QueryRow(ctx, "SELECT id, app_name, scopes, expire_at, create_at, update_at FROM users_api_key WHERE id=$1 and user_id=$2", keyId, user_id)
 	err = row.Scan(
-		apiKey.ID,
-		apiKey.Key,
-		apiKey.Scopes,
-		apiKey.UserId,
-		apiKey.ExpireAt,
-		apiKey.CreateAt,
-		apiKey.UpdateAt)
+		&apiKey.ID,
+		&apiKey.AppName,
+		&apiKey.Scopes,
+		&apiKey.ExpireAt,
+		&apiKey.CreateAt,
+		&apiKey.UpdateAt)
 	return
 }
 func GetAll(userId string) (apiKeys []entities_apikey.ApiKey, err error) {
@@ -94,7 +95,7 @@ func GetAll(userId string) (apiKeys []entities_apikey.ApiKey, err error) {
 		return
 	}
 	defer conn.Close(ctx)
-	rows, err := conn.Query(ctx, "SELECT * FROM users_api_key WHERE user_id=$1", userId)
+	rows, err := conn.Query(ctx, "SELECT id, app_name, scopes, expire_at, create_at, update_at FROM users_api_key WHERE user_id=$1", userId)
 	if err != nil {
 		return
 	}
@@ -102,9 +103,8 @@ func GetAll(userId string) (apiKeys []entities_apikey.ApiKey, err error) {
 		var apiKey entities_apikey.ApiKey
 		err = rows.Scan(
 			&apiKey.ID,
-			&apiKey.Key,
+			&apiKey.AppName,
 			&apiKey.Scopes,
-			&apiKey.UserId,
 			&apiKey.ExpireAt,
 			&apiKey.CreateAt,
 			&apiKey.UpdateAt)
@@ -123,7 +123,7 @@ func GetByAppName(appName string) (apiKey entities_apikey.ApiKey, err error) {
 	}
 	defer conn.Close(ctx)
 	row := conn.QueryRow(ctx,
-		`SELECT id, key, app_name, scopes, expire_at, enabled, duration
+		`SELECT id, key, app_name, scopes, expire_at, enabled, duration, user_id
 		 FROM users_api_key
 		 WHERE app_name=$1`,
 		appName,
@@ -135,6 +135,7 @@ func GetByAppName(appName string) (apiKey entities_apikey.ApiKey, err error) {
 		&apiKey.Scopes,
 		&apiKey.ExpireAt,
 		&apiKey.Enabled,
-		&apiKey.Duration)
+		&apiKey.Duration,
+		&apiKey.UserId)
 	return
 }

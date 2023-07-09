@@ -12,5 +12,5 @@ type ApiKey struct {
 	Enabled  bool
 	ExpireAt time.Time
 	CreateAt time.Time
-	UpdateAt time.Time
+	UpdateAt *time.Time
 }
