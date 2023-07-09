@@ -9,7 +9,13 @@ import (
 	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 )
 
+const (
+	Default = "default"
+	Member  = "modpack_read, modpack_create, modpack_update, modpack_delete"
+)
+
 type UserApiKey struct {
+	Id       string
 	AppName  string
 	ExpireAt time.Time
 	User     entities_user.User
@@ -42,7 +48,7 @@ func (userApiKey *UserApiKey) Generate() (*ApiKeyResult, error) {
 		AppName:  appNameNormalized,
 		ExpireAt: userApiKey.ExpireAt,
 		Duration: int64(userApiKey.ExpireAt.Sub(time.Now()).Hours() / 24),
-		Scopes:   "defaut",
+		Scopes:   Default,
 		Enabled:  true,
 	}
 	id, err := apikey_database.Insert(apiKeyEntity)
@@ -53,19 +59,21 @@ func (userApiKey *UserApiKey) Generate() (*ApiKeyResult, error) {
 	return apiKey, nil
 }
 
-func (userApiKey *UserApiKey) Regenerate(apiKeyId string) (*ApiKeyResult, error) {
+func (userApiKey *UserApiKey) Regenerate() (*ApiKeyResult, error) {
 	appNameNormalized := normalizeAppName(userApiKey.AppName)
 	apiKey, err := generate(userApiKey.AppName)
 	if err != nil {
 		return nil, err
 	}
-
+	currentTime := time.Now()
+	duration := int64(userApiKey.ExpireAt.Sub(currentTime).Hours() / 24)
 	apiKeyEntity := entities_apikey.ApiKey{
-		ID:       apiKeyId,
+		ID:       userApiKey.Id,
 		Key:      apiKey.Result,
 		AppName:  appNameNormalized,
-		ExpireAt: time.Now().Add(time.Duration(365) * time.Hour * 24),
-		Scopes:   "defaut",
+		Duration: duration,
+		ExpireAt: userApiKey.ExpireAt,
+		Scopes:   Default,
 		Enabled:  true,
 	}
 	_, err = apikey_database.Update(apiKeyEntity)

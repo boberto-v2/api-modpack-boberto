@@ -1,14 +1,26 @@
 package rest_object
 
 import (
+	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 
-func (restObject RestObject) CreateModPackObject() rest.Resource {
-	resource := rest.Resource{
-		Object:    MODPACK_OBJECT,
-		Attribute: restObject.Attribute,
-		Link:      restObject.Link,
+type ModPackObject struct {
+	Name        string `json:"name"`
+	Environment string `json:"environment"`
+	Status      string `json:"status"`
+}
+
+func (restObject RestObject) CreateModPackObject(data modpack_cache_models.ModPackCache) RestObject {
+	restObject.Resource = rest.Resource{
+		Object: MODPACK_OBJECT,
+		Attribute: ModPackObject{
+			Name:        data.Name,
+			Environment: data.Environment,
+			Status:      data.Status.GetModPackStatus(),
+		},
+		Link: restObject.Link,
 	}
-	return resource
+	restObject.Create()
+	return restObject
 }

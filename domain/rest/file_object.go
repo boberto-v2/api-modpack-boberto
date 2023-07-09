@@ -1,17 +1,26 @@
 package rest_object
 
-import rest "github.com/brutalzinn/go-easy-rest"
+import (
+	upload_cache_models "github.com/brutalzinn/boberto-modpack-api/services/upload/cache/models"
+	rest "github.com/brutalzinn/go-easy-rest"
+)
+
+const (
+	UPLOAD_FILE = "upload_file"
+)
 
 type FileObject struct {
-	Name string
-	Link rest.Link
+	Id string `json:"id"`
 }
 
-func (restObject RestObject) CreateFileObject() rest.Resource {
-	resourceData := rest.Resource{
-		Object:    FILE_OBJECT,
-		Attribute: restObject.Attribute,
-		Link:      restObject.Link,
+func (restObject RestObject) CreateFileObject(data *upload_cache_models.UploadCache) RestObject {
+	restObject.Resource = rest.Resource{
+		Object: FILE_OBJECT,
+		Attribute: FileObject{
+			Id: data.Id,
+		},
+		Link: restObject.Link,
 	}
-	return resourceData
+	restObject.Create()
+	return restObject
 }

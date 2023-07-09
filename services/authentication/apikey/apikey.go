@@ -10,6 +10,7 @@ import (
 )
 
 type ApiKey struct {
+	Id       string
 	Key      string
 	AppName  string
 	Enabled  bool

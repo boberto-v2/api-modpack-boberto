@@ -7,7 +7,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-var upload_cache = cache.New(1*time.Hour, 5*time.Minute)
+var upload_cache = cache.New(5*time.Minute, 10*time.Minute)
 
 func GetById(id string) (uploadCache upload_cache_models.UploadCache, found bool) {
 	if uploadCache, found := upload_cache.Get(id); found {

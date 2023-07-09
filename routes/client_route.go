@@ -48,50 +48,46 @@ func CreateClientRoute(router gin.IRouter) {
 		modpack_cache.Replace(modpackCache.Id, modpackCache)
 		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
 		uploadCache := upload_service.Create(outputDir)
-		//TODO: Get Daniel help to do some improviments here. Now we are parting with view of a oriented object language. This is realllllllllllly rude to do with Go.
-		//First step is mitigate this procedural steps to create object resources to a extern module called rest.
-		// at this time the rest module already created. But.. needs some improviments to do this more flexible organization.
-		//create rest object to represent a modpack
-		restModPackFileObject := rest_object.RestObject{
-			Attribute: modpackCache,
-			Link: []rest.Link{
-				{
-					Rel:    "_self",
-					Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
-					Method: "GET",
-				},
-				{
-					Rel:    "delete",
-					Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
-					Method: "DELETE",
-				},
-				{
-					Rel:    "update",
-					Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
-					Method: "PUT",
-				},
+		///form one to create rest
+		restmodPackObject := rest_object.New(ctx)
+		restmodPackObject.Link = []rest.Link{
+			{
+				Rel:    "_self",
+				Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
+				Method: "GET",
 			},
-		}.CreateModPackObject()
-
+			{
+				Rel:    "delete",
+				Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
+				Method: "DELETE",
+			},
+			{
+				Rel:    "update",
+				Href:   fmt.Sprintf("/game/client/modpack/%s", modpackCache.Id),
+				Method: "PUT",
+			},
+		}
+		restmodPackObject.CreateModPackObject(modpackCache)
 		// create a rest object to represent a upload object
+		// form with more idiomatic sintax
 		restUploadFileObject := rest_object.RestObject{
-			Attribute: uploadCache,
 			Link: []rest.Link{
-				{
-					Rel:    "_self",
-					Href:   fmt.Sprintf("/game/server/modpack/%s", modpackCache.Id),
-					Method: "GET",
-				},
 				{
 					Rel:    "upload_file",
 					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
 					Method: "POST",
 				},
 			},
-		}.CreateFileObject()
+		}.CreateFileObject(&uploadCache)
+
+		restWaitingObject := rest_object.New(ctx).CreateWaitingObject(rest_object.WaitingObject{
+			Message: rest_object.WAITING_CLIENT_MESSAGE,
+		})
+
 		restResourceData := rest.NewResData()
-		restResourceData.Add(restModPackFileObject)
-		restResourceData.Add(restUploadFileObject)
+		restResourceData.Add(restmodPackObject.Resource)
+		restResourceData.Add(restUploadFileObject.Resource)
+		restResourceData.Add(restWaitingObject.Resource)
 		ctx.JSON(http.StatusOK, restResourceData)
 	})
 

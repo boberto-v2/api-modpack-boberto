@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/brutalzinn/boberto-modpack-api/common"
 	apikey_database "github.com/brutalzinn/boberto-modpack-api/database/apikey"
 	"github.com/brutalzinn/boberto-modpack-api/domain/request"
+	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	authentication_apikey "github.com/brutalzinn/boberto-modpack-api/services/authentication/apikey"
 	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
 	rest "github.com/brutalzinn/go-easy-rest"
@@ -37,30 +37,32 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		url := common.GetUrl(ctx)
-		resourceData := rest.NewResData()
-		resourceData.Add(rest.Resource{
-			Object:    "apikey_object",
-			Attribute: result.Key,
+		restResourceData := rest.NewResData()
+		apiKeyObject := rest_object.ApiKeyCredentialObject{
+			Id:     result.ID,
+			Key:    result.Key,
+			Header: "x-api-key",
 			Link: []rest.Link{
 				{
 					Rel:    "_self",
-					Href:   fmt.Sprintf("%s/user/apikey", url),
+					Href:   fmt.Sprintf("/user/apikey/%s", result.ID),
 					Method: "GET",
 				},
 				{
 					Rel:    "delete",
-					Href:   fmt.Sprintf("%s/user/apikey/delete/%s", url, result.ID),
+					Href:   fmt.Sprintf("/user/apikey/delete/%s", result.ID),
 					Method: "DELETE",
 				},
 				{
 					Rel:    "regenerate",
-					Href:   fmt.Sprintf("%s/user/apikey/regenerate/%s", url, result.ID),
+					Href:   fmt.Sprintf("/user/apikey/regenerate/%s", result.ID),
 					Method: "PUT",
 				},
 			},
-		})
-		ctx.JSON(http.StatusOK, resourceData)
+		}
+		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
+		restResourceData.Add(restObject.Resource)
+		ctx.JSON(http.StatusOK, restResourceData)
 	})
 
 	router.GET("/apikey", func(ctx *gin.Context) {
@@ -74,28 +76,36 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		url := common.GetUrl(ctx)
-		resourceData := rest.NewResData()
+
+		restResourceData := rest.NewResData()
 		for _, apiKey := range apiKeys {
-			resourceData.Add(rest.Resource{
-				Object:    "apikey_object",
-				Attribute: apiKey,
+			apiKeyObject := rest_object.ApiKeyCredentialObject{
+				Id:     apiKey.ID,
+				Header: "x-api-key",
+				Scopes: apiKey.Scopes,
 				Link: []rest.Link{
 					{
+						Rel:    "_self",
+						Href:   fmt.Sprintf("/user/apikey/%s", apiKey.ID),
+						Method: "GET",
+					},
+					{
 						Rel:    "delete",
-						Href:   fmt.Sprintf("%s/user/apikey/delete/%s", url, apiKey.ID),
+						Href:   fmt.Sprintf("/user/apikey/delete/%s", apiKey.ID),
 						Method: "DELETE",
 					},
 					{
 						Rel:    "regenerate",
-						Href:   fmt.Sprintf("%s/user/apikey/regenerate/%s", url, apiKey.ID),
+						Href:   fmt.Sprintf("/user/apikey/regenerate/%s", apiKey.ID),
 						Method: "PUT",
 					},
 				},
-			})
-
+			}
+			restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
+			restResourceData.Add(restObject.Resource)
 		}
-		ctx.JSON(http.StatusOK, resourceData)
+
+		ctx.JSON(http.StatusOK, restResourceData)
 	})
 	router.PUT("/apikey/regenerate/:id", func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
@@ -110,42 +120,42 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			return
 		}
 		userApiKey := authentication_apikey.UserApiKey{
+			Id:       apiKeyEntity.ID,
 			AppName:  apiKeyEntity.AppName,
 			ExpireAt: time.Now().Add(time.Duration(apiKeyEntity.Duration) * time.Hour * 24),
 			User:     *currentUser,
 		}
-		newApiKey, err := userApiKey.Regenerate(id)
+		newApiKey, err := userApiKey.Regenerate()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		// TODO: Show daniel how we will separate rest objects.
-		url := common.GetUrl(ctx)
-		resourceData := rest.NewResData()
-		resourceData.Add(rest.Resource{
-			Object: "apikey_object",
-			Attribute: map[string]any{
-				"api_key": newApiKey.Key,
-			},
+		restResourceData := rest.NewResData()
+		apiKeyObject := rest_object.ApiKeyCredentialObject{
+			Id:     newApiKey.ID,
+			Header: "x-api-key",
 			Link: []rest.Link{
 				{
 					Rel:    "_self",
-					Href:   fmt.Sprintf("%s/user/apikey", url),
+					Href:   fmt.Sprintf("/user/apikey/%s", apiKeyEntity.ID),
 					Method: "GET",
 				},
 				{
 					Rel:    "delete",
-					Href:   fmt.Sprintf("%s/user/apikey/delete/%s", url, id),
+					Href:   fmt.Sprintf("/user/apikey/delete/%s", apiKeyEntity.ID),
 					Method: "DELETE",
 				},
 				{
 					Rel:    "regenerate",
-					Href:   fmt.Sprintf("%s/user/apikey/regenerate/%s", url, id),
+					Href:   fmt.Sprintf("/user/apikey/regenerate/%s", apiKeyEntity.ID),
 					Method: "PUT",
 				},
 			},
-		})
-		ctx.JSON(http.StatusOK, resourceData)
+		}
+		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
+		restResourceData.Add(restObject.Resource)
+		ctx.JSON(http.StatusOK, restResourceData)
 	})
 
 	router.POST("/apikey/delete/:id", func(ctx *gin.Context) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
+	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
@@ -45,25 +46,46 @@ func CreateServerRoute(router gin.IRouter) {
 		//create upload ticket
 		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
 		uploadCache := upload_service.Create(outputDir)
-		url := common.GetUrl(ctx)
-		resourceData := rest.NewResData()
-		resourceData.Add(rest.Resource{
-			Object:    "modpack_object",
-			Attribute: modpackCache,
+		restModPackFileObject := rest_object.RestObject{
 			Link: []rest.Link{
 				{
 					Rel:    "_self",
-					Href:   fmt.Sprintf("%s/game/server/modpack/%s", url, modpackCache.Id),
+					Href:   fmt.Sprintf("/game/server/modpack/%s", modpackCache.Id),
 					Method: "GET",
 				},
 				{
+					Rel:    "delete",
+					Href:   fmt.Sprintf("/game/server/modpack/%s", modpackCache.Id),
+					Method: "DELETE",
+				},
+				{
+					Rel:    "update",
+					Href:   fmt.Sprintf("/game/server/modpack/%s", modpackCache.Id),
+					Method: "PUT",
+				},
+			},
+		}.CreateModPackObject(modpackCache)
+
+		// create a rest object to represent a upload object
+		restUploadFileObject := rest_object.RestObject{
+			Link: []rest.Link{
+				{
 					Rel:    "upload_file",
-					Href:   fmt.Sprintf("%s/application/upload/%s", url, uploadCache.Id),
+					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
 					Method: "POST",
 				},
 			},
+		}.CreateFileObject(&uploadCache)
+
+		restWaitingObject := rest_object.New(ctx).CreateWaitingObject(rest_object.WaitingObject{
+			Message: rest_object.WAITING_SERVER_MESSAGE,
 		})
-		ctx.JSON(http.StatusOK, resourceData)
+
+		restResourceData := rest.NewResData()
+		restResourceData.Add(restModPackFileObject.Resource)
+		restResourceData.Add(restUploadFileObject.Resource)
+		restResourceData.Add(restWaitingObject.Resource)
+		ctx.JSON(http.StatusOK, restResourceData)
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {

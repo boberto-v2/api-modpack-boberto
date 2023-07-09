@@ -26,12 +26,12 @@ func Create(outputDir string) upload_cache_models.UploadCache {
 	upload_cache.Create(uploadCache)
 	return uploadCache
 }
-func GetUploadPath(id string) (string, error) {
+func GetById(id string) (*upload_cache_models.UploadCache, error) {
 	uploadCache, found := upload_cache.GetById(id)
 	if !found {
-		return "", errors.New("The token provided is invalid or expired.")
+		return nil, errors.New("The token provided is invalid or expired.")
 	}
-	return uploadCache.OutputDir, nil
+	return &uploadCache, nil
 }
 
 func SaveFiles(id string, files []*multipart.FileHeader) error {
@@ -45,7 +45,8 @@ func SaveFiles(id string, files []*multipart.FileHeader) error {
 }
 
 func SaveFile(id string, file *multipart.FileHeader) error {
-	outputPath, err := GetUploadPath(id)
+	uploadCache, err := GetById(id)
+	outputPath := uploadCache.OutputDir
 	if err != nil {
 		return err
 	}

@@ -7,7 +7,9 @@ import (
 	user_database "github.com/brutalzinn/boberto-modpack-api/database/user"
 	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 	"github.com/brutalzinn/boberto-modpack-api/domain/request"
+	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
+	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +31,13 @@ func CreateAuthRoutes(router gin.IRouter) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Email or password is invalid"})
 			return
 		}
-		ctx.JSON(http.StatusUnauthorized, gin.H{"access_token": token})
+		//The resource can change. REMEMBER IT.
+		//At this case, the user can be blocked because many attemps to login, in this case.. waiting object will received too.
+		//Soo.. the client needs to wait for a array of object and handle for itself.
+		restResourceData := rest.NewResData()
+		userRestObject := rest_object.New(ctx).CreateUserCredentialsObject(token)
+		restResourceData.Add(userRestObject.Resource)
+		ctx.JSON(http.StatusOK, restResourceData)
 	})
 
 	router.POST("/register", func(ctx *gin.Context) {
