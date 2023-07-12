@@ -7,13 +7,14 @@ var cfg *config
 type config struct {
 	API            APIConfig
 	Authentication AuthConfig
+	ModPacks       ModPacksConfig
+	User           UserConfig
 }
 
 type APIConfig struct {
 	Port         string
-	MaxApiKeys   int64
-	PublicPath   string
-	ManifestName string
+	ApiKeyHeader string
+	Timeout      string
 }
 
 type AuthConfig struct {
@@ -22,10 +23,21 @@ type AuthConfig struct {
 	AesKey     string
 }
 
+type ModPacksConfig struct {
+	PublicPath   string
+	ManifestName string
+}
+
+type UserConfig struct {
+	MaxApiKeys int64
+}
+
 func init() {
 	viper.SetDefault("api.port", "8000")
-	viper.SetDefault("api.publicpath", "public/modpacks")
-	viper.SetDefault("api.manifest_name", "manifest.json")
+	viper.SetDefault("api.apikey_header", "x-api-key")
+
+	viper.SetDefault("modpacks.publicpath", "public/modpacks")
+	viper.SetDefault("modpacks.manifest_name", "manifest.json")
 }
 
 func Load() error {
@@ -41,14 +53,20 @@ func Load() error {
 	cfg = new(config)
 	cfg.API = APIConfig{
 		Port:         viper.GetString("api.port"),
-		MaxApiKeys:   viper.GetInt64("api.maxapikeys"),
-		PublicPath:   viper.GetString("api.publicpath"),
-		ManifestName: viper.GetString("api.manifest_name"),
+		ApiKeyHeader: viper.GetString("api.apikey_header"),
 	}
+	cfg.ModPacks = ModPacksConfig{
+		PublicPath:   viper.GetString("modpacks.publicpath"),
+		ManifestName: viper.GetString("modpacks.manifest_name"),
+	}
+
 	cfg.Authentication = AuthConfig{
 		Secret:     viper.GetString("authentication.secret"),
 		Expiration: viper.GetInt64("authentication.expiration"),
 		AesKey:     viper.GetString("authentication.aeskey"),
+	}
+	cfg.User = UserConfig{
+		MaxApiKeys: viper.GetInt64("user.maxapikeys"),
 	}
 	return nil
 }

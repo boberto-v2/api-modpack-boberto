@@ -12,6 +12,31 @@ CREATE TABLE IF NOT EXISTS users (
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS modpacks (
+    "id" uuid NOT NULL,
+	"name" varchar(100),
+    "client_manifest" text,
+    "server_manifest" text,
+    "user_id" uuid NOT NULL,
+    "create_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    "update_at" timestamp default NULL,
+    CONSTRAINT modpacks_pkey PRIMARY KEY (id)
+);
+
+
+CREATE TABLE IF NOT EXISTS users_pterodatily_integrations (
+    "id" uuid DEFAULT uuid_generate_v4(),
+    "server_id" varchar(100),
+    "base_url" varchar(100),
+	"api_key" varchar(100),
+	"user_id" uuid NOT NULL,
+    "description" varchar(100),
+    "create_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    "update_at" timestamp default NULL,
+    CONSTRAINT users_integrations_pkey PRIMARY KEY (id)
+);
+
+
 CREATE TABLE IF NOT EXISTS users_api_key (
     "id" uuid DEFAULT uuid_generate_v4(),
 	"key" text NOT NULL,
@@ -28,6 +53,12 @@ CREATE TABLE IF NOT EXISTS users_api_key (
 
 
 ALTER TABLE users_api_key
+ADD FOREIGN KEY ("user_id") REFERENCES users (id)
+ON DELETE CASCADE
+DEFERRABLE INITIALLY DEFERRED;
+
+
+ALTER TABLE users_integrations
 ADD FOREIGN KEY ("user_id") REFERENCES users (id)
 ON DELETE CASCADE
 DEFERRABLE INITIALLY DEFERRED;

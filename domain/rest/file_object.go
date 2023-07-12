@@ -21,6 +21,6 @@ func (restObject RestObject) CreateFileObject(data *upload_cache_models.UploadCa
 		},
 		Link: restObject.Link,
 	}
-	restObject.Create()
+	restObject.create()
 	return restObject
 }

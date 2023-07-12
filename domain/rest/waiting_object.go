@@ -20,6 +20,6 @@ func (restObject RestObject) CreateWaitingObject(data WaitingObject) RestObject 
 		Attribute: data,
 		Link:      restObject.Link,
 	}
-	restObject.Create()
+	restObject.create()
 	return restObject
 }

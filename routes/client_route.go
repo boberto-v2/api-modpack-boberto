@@ -34,7 +34,7 @@ func CreateClientRoute(router gin.IRouter) {
 			return
 		}
 		nameNormalized := common.NormalizeString(createClientModPackRequest.Name)
-		modpackPath := filepath.Join(cfg.API.PublicPath, nameNormalized)
+		modpackPath := filepath.Join(cfg.ModPacks.PublicPath, nameNormalized)
 		file_service.CreateAndDestroyDirectory(modpackPath)
 
 		modpackCache := modpack_cache_models.
@@ -42,10 +42,8 @@ func CreateClientRoute(router gin.IRouter) {
 			Environment: modpack_models.Client.GetFolderName(),
 			Name:        createClientModPackRequest.Name,
 		}.New()
-
-		modpack_cache.Create(modpackCache)
 		modpackCache.Status = modpack_models.PendingClientFiles
-		modpack_cache.Replace(modpackCache.Id, modpackCache)
+		modpack_cache.Create(modpackCache)
 		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
 		uploadCache := upload_service.Create(outputDir)
 		///form one to create rest
@@ -73,7 +71,7 @@ func CreateClientRoute(router gin.IRouter) {
 		restUploadFileObject := rest_object.RestObject{
 			Link: []rest.Link{
 				{
-					Rel:    "upload_file",
+					Rel:    "upload_file_zip",
 					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
 					Method: "POST",
 				},

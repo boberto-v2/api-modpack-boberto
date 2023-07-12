@@ -21,6 +21,6 @@ func (restObject RestObject) CreateModPackObject(data modpack_cache_models.ModPa
 		},
 		Link: restObject.Link,
 	}
-	restObject.Create()
+	restObject.create()
 	return restObject
 }

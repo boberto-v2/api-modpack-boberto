@@ -16,9 +16,9 @@ var cfg = config.GetConfig()
 func CreateModPackManifest(modpack manifest_models.ManifestModPack) {
 
 	nameNormalize := common.NormalizeString(modpack.Name)
-	modPackManifestFile := filepath.Join(cfg.API.PublicPath, nameNormalize, cfg.API.ManifestName)
-	clientManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ClientManifestUrl, nameNormalize, modpack_models.Client.GetFolderName(), cfg.API.ManifestName)
-	serverManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ServerManifestUrl, nameNormalize, modpack_models.Server.GetFolderName(), cfg.API.ManifestName)
+	modPackManifestFile := filepath.Join(cfg.ModPacks.PublicPath, nameNormalize, cfg.ModPacks.ManifestName)
+	clientManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ClientManifestUrl, nameNormalize, modpack_models.Client.GetFolderName(), cfg.ModPacks.ManifestName)
+	serverManifestUrl := fmt.Sprintf("%s/%s/%s/%s", modpack.ServerManifestUrl, nameNormalize, modpack_models.Server.GetFolderName(), cfg.ModPacks.ManifestName)
 	manifest := manifest_models.ManifestModPack{
 		Id:                modpack.Id,
 		Name:              modpack.Name,
@@ -37,7 +37,7 @@ func WriteModPackManifestFiles(
 	environment modpack_models.MinecraftEnvironment) {
 
 	nameNormalize := common.NormalizeString(modpack.Name)
-	manifestFile := filepath.Join(cfg.API.PublicPath, nameNormalize, environment.GetFolderName(), cfg.API.ManifestName)
+	manifestFile := filepath.Join(cfg.ModPacks.PublicPath, nameNormalize, environment.GetFolderName(), cfg.ModPacks.ManifestName)
 	manifest := manifest_models.ManifestFiles{
 		CreateAt: time.Now(),
 		Files:    files,
@@ -49,10 +49,10 @@ func WriteModPackManifestFiles(
 func ReadModPackManifestFiles(modpack modpack_models.MinecraftModPack, environment modpack_models.MinecraftEnvironment) manifest_models.ManifestFiles {
 	nameNormalize := common.NormalizeString(modpack.Name)
 
-	manifestFile := filepath.Join(cfg.API.PublicPath,
+	manifestFile := filepath.Join(cfg.ModPacks.PublicPath,
 		nameNormalize,
 		environment.GetFolderName(),
-		cfg.API.ManifestName)
+		cfg.ModPacks.ManifestName)
 
 	manifest := ReadManifestJsonFiles(manifestFile)
 	return manifest

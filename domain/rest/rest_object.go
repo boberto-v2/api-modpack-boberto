@@ -35,7 +35,7 @@ func New(ctx *gin.Context) RestObject {
 	return restObject
 }
 
-func (restObject RestObject) Create() RestObject {
+func (restObject RestObject) create() RestObject {
 	urlHost := common.GetUrl(restObject.ctx)
 	for i, href := range restObject.Link {
 		href = restObject.resolveHref(urlHost, href)

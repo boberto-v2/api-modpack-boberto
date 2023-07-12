@@ -33,7 +33,7 @@ func CreateServerRoute(router gin.IRouter) {
 			return
 		}
 		nameNormalized := common.NormalizeString(modpack.Name)
-		modpackPath := filepath.Join(cfg.API.PublicPath, nameNormalized)
+		modpackPath := filepath.Join(cfg.ModPacks.PublicPath, nameNormalized)
 		file_service.CreateAndDestroyDirectory(modpackPath)
 		modpackCache := modpack_cache_models.
 			ModPackCache{

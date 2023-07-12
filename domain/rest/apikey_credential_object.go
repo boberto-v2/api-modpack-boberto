@@ -18,6 +18,6 @@ func (restObject RestObject) CreateApiKeycredentialObject(data ApiKeyCredentialO
 		Attribute: data,
 		Link:      restObject.Link,
 	}
-	restObject.Create()
+	restObject.create()
 	return restObject
 }

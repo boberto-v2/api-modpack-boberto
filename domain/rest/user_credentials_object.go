@@ -16,6 +16,6 @@ func (restObject RestObject) CreateUserCredentialsObject(data string) RestObject
 		},
 		Link: restObject.Link,
 	}
-	restObject.Create()
+	restObject.create()
 	return restObject
 }

@@ -1,12 +1,11 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
+	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
-	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +13,7 @@ import (
 func CreateUploadRoute(router gin.IRouter) {
 	router.POST("/upload/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-		uploadCache, err := upload_service.GetById(id)
+		_, err := upload_service.GetById(id)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -25,17 +24,11 @@ func CreateUploadRoute(router gin.IRouter) {
 			return
 		}
 		files := form.File["files"]
-		go upload_service.SaveFiles(id, files)
-		restUploadFileObject := rest_object.RestObject{
-			Link: []rest.Link{
-				{
-					Rel:    "upload_file",
-					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
-					Method: "POST",
-				},
-			},
-		}.CreateFileObject(uploadCache)
-
+		event := event_service.Create(event_service.FILE_UPLOAD)
+		event.Emit("Saving local files..")
+		go upload_service.SaveFiles(id, files, event)
+		restUploadFileObject := rest_object.New(ctx)
+		restUploadFileObject.CreateEventObject(event)
 		ctx.JSON(http.StatusAccepted, restUploadFileObject)
 	})
 }
