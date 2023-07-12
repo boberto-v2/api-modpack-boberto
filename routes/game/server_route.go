@@ -89,17 +89,17 @@ func CreateServerRoute(router gin.IRouter) {
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
-		id := ctx.Params.ByName("id")
-		var modpackFtp modpack_models.ModPackFtp
-		if err := ctx.ShouldBindJSON(&modpackFtp); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		modpack, found := modpack_cache.GetById(id)
-		if !found {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
-			return
-		}
-		ctx.JSON(http.StatusOK, gin.H{"data": modpack})
+		// id := ctx.Params.ByName("id")
+		// var modpackFtp modpack_models.ModPackFtp
+		// if err := ctx.ShouldBindJSON(&modpackFtp); err != nil {
+		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// 	return
+		// }
+		// modpack, found := modpack_cache.GetById(id)
+		// if !found {
+		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
+		// 	return
+		// }
+		// ctx.JSON(http.StatusOK, gin.H{"data": modpack})
 	})
 }

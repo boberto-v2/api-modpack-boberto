@@ -7,7 +7,7 @@ import (
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
-	"github.com/brutalzinn/boberto-modpack-api/domain/request"
+	game_client_request "github.com/brutalzinn/boberto-modpack-api/domain/request/game/client"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
@@ -28,7 +28,7 @@ func CreateClientRoute(router gin.IRouter) {
 
 	router.POST("/modpack/create", func(ctx *gin.Context) {
 		var cfg = config.GetConfig()
-		var createClientModPackRequest request.CreateClientModPackRequest
+		var createClientModPackRequest game_client_request.CreateClientModPackRequest
 		if err := ctx.ShouldBindJSON(&createClientModPackRequest); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -101,6 +101,7 @@ func CreateClientRoute(router gin.IRouter) {
 		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
 		// 	return
 		// }
+
 		//create modpack rest object
 		// restModpackObject := rest_object.RestObject{
 		// 	Attribute: modpackCache,
