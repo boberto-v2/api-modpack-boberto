@@ -2,7 +2,6 @@ package upload_service
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
@@ -11,7 +10,6 @@ import (
 	"time"
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
 	upload_cache_models "github.com/brutalzinn/boberto-modpack-api/services/upload/cache/models"
@@ -36,9 +34,9 @@ func GetById(id string) (*upload_cache_models.UploadCache, error) {
 	return &uploadCache, nil
 }
 
-func SaveFiles(id string, files []*multipart.FileHeader, event event_service.Event) error {
+func SaveFiles(id string, files []*multipart.FileHeader) error {
 	for _, file := range files {
-		err := SaveFile(id, file, event)
+		err := SaveFile(id, file)
 		if err != nil {
 			return err
 		}
@@ -46,14 +44,13 @@ func SaveFiles(id string, files []*multipart.FileHeader, event event_service.Eve
 	return nil
 }
 
-func SaveFile(id string, file *multipart.FileHeader, event event_service.Event) error {
+func SaveFile(id string, file *multipart.FileHeader) error {
 	uploadCache, err := GetById(id)
 	outputPath := uploadCache.OutputDir
 	if err != nil {
 		return err
 	}
 	finalOutputFile := filepath.Join(outputPath, file.Filename)
-	event.Emit(fmt.Sprintf("saving file %s", file.Filename))
 	out, err := os.Create(finalOutputFile)
 	if err != nil {
 		log.Fatal(err)
@@ -65,7 +62,6 @@ func SaveFile(id string, file *multipart.FileHeader, event event_service.Event) 
 		log.Fatal(err)
 	}
 	if isZip(finalOutputFile) {
-		event.Emit(fmt.Sprintf("uncompressing file %s", file.Filename))
 		UnZip(finalOutputFile, outputPath)
 	}
 	return nil

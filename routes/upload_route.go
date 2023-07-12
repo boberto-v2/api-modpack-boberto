@@ -26,7 +26,7 @@ func CreateUploadRoute(router gin.IRouter) {
 		files := form.File["files"]
 		event := event_service.Create(event_service.FILE_UPLOAD)
 		event.Emit("Saving local files..")
-		go upload_service.SaveFiles(id, files, event)
+		go upload_service.SaveFiles(id, files)
 		restUploadFileObject := rest_object.New(ctx)
 		restUploadFileObject.CreateEventObject(event)
 		ctx.JSON(http.StatusAccepted, restUploadFileObject)
