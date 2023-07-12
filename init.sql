@@ -23,20 +23,6 @@ CREATE TABLE IF NOT EXISTS modpacks (
     CONSTRAINT modpacks_pkey PRIMARY KEY (id)
 );
 
-
-CREATE TABLE IF NOT EXISTS users_pterodatily_integrations (
-    "id" uuid DEFAULT uuid_generate_v4(),
-    "server_id" varchar(100),
-    "base_url" varchar(100),
-	"api_key" varchar(100),
-	"user_id" uuid NOT NULL,
-    "description" varchar(100),
-    "create_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    "update_at" timestamp default NULL,
-    CONSTRAINT users_integrations_pkey PRIMARY KEY (id)
-);
-
-
 CREATE TABLE IF NOT EXISTS users_api_key (
     "id" uuid DEFAULT uuid_generate_v4(),
 	"key" text NOT NULL,
@@ -56,12 +42,5 @@ ALTER TABLE users_api_key
 ADD FOREIGN KEY ("user_id") REFERENCES users (id)
 ON DELETE CASCADE
 DEFERRABLE INITIALLY DEFERRED;
-
-
-ALTER TABLE users_integrations
-ADD FOREIGN KEY ("user_id") REFERENCES users (id)
-ON DELETE CASCADE
-DEFERRABLE INITIALLY DEFERRED;
-
 
 INSERT INTO users ("id", "email", "password", "username") VALUES('ab7d7136-6c24-4cd0-ba30-97ff0110ecac'::uuid, 'test', '$2a$15$zqJBJTKH7LZbTSQHhnNzeOx9VjcGwv3HamUksu8VQ81E/WbRJCLPW', 'usertest');

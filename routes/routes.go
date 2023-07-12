@@ -15,7 +15,7 @@ func CreateRoutes(router gin.IRouter) {
 	{
 		CreateApiKeyRoute(user)
 	}
-	game := router.Group("/game", middlewares.ApiKeyMiddleware())
+	game := router.Group("/game", middlewares.JWTMiddleware(), middlewares.ApiKeyMiddleware())
 	{
 		server := game.Group("/server")
 		{
@@ -26,7 +26,7 @@ func CreateRoutes(router gin.IRouter) {
 			CreateClientRoute(client)
 		}
 	}
-	application := router.Group("/application", middlewares.ApiKeyMiddleware())
+	application := router.Group("/application", middlewares.JWTMiddleware(), middlewares.ApiKeyMiddleware())
 	{
 		CreateUploadRoute(application)
 		CreateEventRoute(application)
