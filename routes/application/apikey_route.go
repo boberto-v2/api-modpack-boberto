@@ -1,4 +1,4 @@
-package routes
+package application_routes
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package routes
+package application_routes
 
 import (
 	"net/http"
@@ -24,9 +24,10 @@ func CreateUploadRoute(router gin.IRouter) {
 			return
 		}
 		files := form.File["files"]
-		event := event_service.Create(event_service.FILE_UPLOAD)
-		event.Emit("Saving local files..")
-		go upload_service.SaveFiles(id, files)
+		event := event_service.Create(event_service.UPLOAD_FILE_EVENT)
+		go upload_service.SaveFiles(id, files, func(eventMsg string) {
+			event.Emit(eventMsg)
+		})
 		restUploadFileObject := rest_object.New(ctx)
 		restUploadFileObject.CreateEventObject(event)
 		ctx.JSON(http.StatusAccepted, restUploadFileObject)

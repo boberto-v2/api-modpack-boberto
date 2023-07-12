@@ -14,10 +14,11 @@ var event_cache = cache.New(5*time.Minute, 10*time.Minute)
 var sessionGroupMap = make(map[string]map[uuid.UUID]*websocket.Conn)
 
 type Event struct {
-	Id       string    `json:"id"`
-	Name     string    `json:"name"`
-	CreateAt time.Time `json:"create_at"`
-	ExpireAt time.Time `json:"expire_at"`
+	Id       string      `json:"id"`
+	Name     string      `json:"name"`
+	Status   EventStatus `json:"status"`
+	CreateAt time.Time   `json:"create_at"`
+	ExpireAt time.Time   `json:"expire_at"`
 }
 
 func Create(eventName string) Event {
@@ -26,6 +27,7 @@ func Create(eventName string) Event {
 		Id:       id,
 		Name:     eventName,
 		CreateAt: time.Now(),
+		Status:   EVENT_STARTED,
 	}
 	event_cache.Add(id, new_event, cache.DefaultExpiration)
 	return new_event

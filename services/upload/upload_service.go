@@ -2,6 +2,7 @@ package upload_service
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
@@ -34,24 +35,24 @@ func GetById(id string) (*upload_cache_models.UploadCache, error) {
 	return &uploadCache, nil
 }
 
-func SaveFiles(id string, files []*multipart.FileHeader) error {
+func SaveFiles(id string, files []*multipart.FileHeader, callback func(string)) error {
+	uploadCache, err := GetById(id)
+	if err != nil {
+		return err
+	}
 	for _, file := range files {
-		err := SaveFile(id, file)
+		err := saveFile(uploadCache.OutputDir, file)
 		if err != nil {
 			return err
 		}
+		callback(fmt.Sprintf("saving...", file.Filename))
 	}
 	return nil
 }
 
-func SaveFile(id string, file *multipart.FileHeader) error {
-	uploadCache, err := GetById(id)
-	outputPath := uploadCache.OutputDir
-	if err != nil {
-		return err
-	}
-	finalOutputFile := filepath.Join(outputPath, file.Filename)
-	out, err := os.Create(finalOutputFile)
+func saveFile(fileDir string, file *multipart.FileHeader) error {
+	filePath := filepath.Join(fileDir, file.Filename)
+	out, err := os.Create(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,19 +62,17 @@ func SaveFile(id string, file *multipart.FileHeader) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if isZip(finalOutputFile) {
-		UnZip(finalOutputFile, outputPath)
-	}
 	return nil
 }
 
-func UnZip(finalOutputFile string, outputPath string) {
-	file_service.Unzip(finalOutputFile, outputPath)
-	os.Remove(finalOutputFile)
+func UnZip(zipFilePath string, outputPath string, callback func(string)) {
+	callback(fmt.Sprintf("unziping.. %s", zipFilePath))
+	file_service.Unzip(zipFilePath, outputPath)
+	callback(fmt.Sprintf("unzip completed %s", zipFilePath))
 }
 
-func isZip(finalOutputFile string) bool {
-	fileExtension := filepath.Ext(finalOutputFile)
+func IsZip(filePath string) bool {
+	fileExtension := filepath.Ext(filePath)
 	isZipExtenion := fileExtension == ".zip"
 	return isZipExtenion
 }

@@ -1,4 +1,4 @@
-package routes
+package game_routes
 
 import (
 	"fmt"

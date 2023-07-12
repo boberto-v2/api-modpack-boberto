@@ -1,4 +1,4 @@
-package routes
+package application_routes
 
 import (
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"

@@ -83,3 +83,7 @@ func emit(eventName string, messageContent []byte) {
 		}
 	}
 }
+
+func Complete() {
+
+}

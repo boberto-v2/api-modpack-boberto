@@ -2,6 +2,9 @@ package routes
 
 import (
 	"github.com/brutalzinn/boberto-modpack-api/middlewares"
+	application_routes "github.com/brutalzinn/boberto-modpack-api/routes/application"
+	authorization_routes "github.com/brutalzinn/boberto-modpack-api/routes/authorization"
+	game_routes "github.com/brutalzinn/boberto-modpack-api/routes/game"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,25 +13,25 @@ import (
 
 // for me this is not sooooo readable but is agree with gin documentation. we can do better after
 func CreateRoutes(router gin.IRouter) {
-	CreateAuthRoutes(router)
-	user := router.Group("/user", middlewares.JWTMiddleware())
+	authorization := router.Group("/auth")
 	{
-		CreateApiKeyRoute(user)
+		authorization_routes.CreateAuthRoutes(authorization)
 	}
 	game := router.Group("/game", middlewares.JWTMiddleware(), middlewares.ApiKeyMiddleware())
 	{
 		server := game.Group("/server")
 		{
-			CreateClientRoute(server)
+			game_routes.CreateClientRoute(server)
 		}
 		client := game.Group("/client")
 		{
-			CreateClientRoute(client)
+			game_routes.CreateServerRoute(client)
 		}
 	}
 	application := router.Group("/application", middlewares.JWTMiddleware(), middlewares.ApiKeyMiddleware())
 	{
-		CreateUploadRoute(application)
-		CreateEventRoute(application)
+		application_routes.CreateUploadRoute(application)
+		application_routes.CreateEventRoute(application)
+		application_routes.CreateApiKeyRoute(application)
 	}
 }
