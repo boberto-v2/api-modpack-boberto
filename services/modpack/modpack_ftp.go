@@ -8,6 +8,7 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	ftp_service "github.com/brutalzinn/boberto-modpack-api/services/ftp"
+	ftp_models "github.com/brutalzinn/boberto-modpack-api/services/ftp/models"
 	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest"
 	manifest_compare "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest/comparer"
 	manifest_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest/models"
@@ -86,7 +87,7 @@ func UploadOrDeleteSyncModPack(
 }
 
 func UploadServer(modpack modpack_models.MinecraftModPack,
-	ftpCredentials modpack_models.ModPackFtp) error {
+	ftpCredentials ftp_models.Ftp) error {
 
 	normalizeName := common.NormalizeString(modpack.Name)
 	modPackPath := filepath.Join(
@@ -95,10 +96,10 @@ func UploadServer(modpack modpack_models.MinecraftModPack,
 		modpack_models.Server.GetFolderName())
 
 	ftpClient, err := ftp_service.OpenFtpConnection(
-		ftpCredentials.ServerFtp.Directory,
-		ftpCredentials.ServerFtp.Address,
-		ftpCredentials.ServerFtp.User,
-		ftpCredentials.ServerFtp.Password,
+		ftpCredentials.Directory,
+		ftpCredentials.Address,
+		ftpCredentials.User,
+		ftpCredentials.Password,
 	)
 	if err != nil {
 		log.Println("Something goes wrong at ftp connecion. Put this at queue", err)
@@ -129,7 +130,7 @@ func UploadServer(modpack modpack_models.MinecraftModPack,
 }
 
 func UploadClient(modpack modpack_models.MinecraftModPack,
-	ftpCredentials modpack_models.ModPackFtp) error {
+	ftpCredentials ftp_models.Ftp) error {
 
 	nameNormalized := common.NormalizeString(modpack.Name)
 
@@ -139,10 +140,10 @@ func UploadClient(modpack modpack_models.MinecraftModPack,
 		modpack_models.Client.GetFolderName())
 
 	ftpClient, err := ftp_service.OpenFtpConnection(
-		ftpCredentials.ClientFtp.Directory,
-		ftpCredentials.ClientFtp.Address,
-		ftpCredentials.ClientFtp.User,
-		ftpCredentials.ClientFtp.Password,
+		ftpCredentials.Directory,
+		ftpCredentials.Address,
+		ftpCredentials.User,
+		ftpCredentials.Password,
 	)
 	if err != nil {
 		log.Println("Somethings goes wrong at ftp connecion. Put this on queue", err)

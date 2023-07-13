@@ -10,6 +10,8 @@ import (
 	game_client_request "github.com/brutalzinn/boberto-modpack-api/domain/request/game/client"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
+	ftp_models "github.com/brutalzinn/boberto-modpack-api/services/ftp/models"
+	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
@@ -19,7 +21,6 @@ import (
 )
 
 func CreateClientRoute(router gin.IRouter) {
-
 	router.GET("/modpack/:id", func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
 		modpack, _ := modpack_cache.GetById(id)
@@ -71,7 +72,7 @@ func CreateClientRoute(router gin.IRouter) {
 		restUploadFileObject := rest_object.RestObject{
 			Link: []rest.Link{
 				{
-					Rel:    "upload_file_zip",
+					Rel:    "upload_file",
 					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
 					Method: "POST",
 				},
@@ -90,23 +91,29 @@ func CreateClientRoute(router gin.IRouter) {
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
-		// id := ctx.Params.ByName("id")
-		// var modpackFtp modpack_models.ModPackFtp
-		// if err := ctx.ShouldBindJSON(&modpackFtp); err != nil {
-		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// 	return
-		// }
-		// modpackCache, found := modpack_cache.GetById(id)
-		// if !found {
-		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
-		// 	return
-		// }
-
-		//create modpack rest object
-		// restModpackObject := rest_object.RestObject{
-		// 	Attribute: modpackCache,
-		// }.CreateModPackObject()
-
-		//	ctx.JSON(http.StatusOK, gin.H{"data": resourceData})
+		id := ctx.Params.ByName("id")
+		var finishClientModpackRequest game_client_request.FinishClientModPackRequest
+		if err := ctx.ShouldBindJSON(&finishClientModpackRequest); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		modpackCache, found := modpack_cache.GetById(id)
+		if !found {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
+			return
+		}
+		modpack := modpack_models.MinecraftModPack{
+			Name: modpackCache.Name,
+		}
+		ftpClientConnection := ftp_models.Ftp{
+			Address:   finishClientModpackRequest.ClientFtp.Address,
+			User:      finishClientModpackRequest.ClientFtp.User,
+			Password:  finishClientModpackRequest.ClientFtp.Password,
+			Directory: finishClientModpackRequest.ClientFtp.Directory,
+		}
+		modpack_service.UploadClient(modpack, ftpClientConnection)
+		// create modpack rest object
+		restObject := rest_object.New(ctx).CreateModPackObject(modpackCache)
+		ctx.JSON(http.StatusOK, restObject)
 	})
 }

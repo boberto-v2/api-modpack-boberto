@@ -1,9 +1,9 @@
 package game_client_request
 
-type ModPackFtp struct {
+type FinishClientModPackRequest struct {
 	ServerFtp      *Ftp            `json:"server_ftp"`
 	ClientFtp      *Ftp            `json:"client_ftp"`
-	PteroDactylApi *PterodactylApi `json:"pterodactyl_api"`
+	PterodactylApi *PterodactylApi `json:"pterodactyl_api"`
 }
 
 type Ftp struct {
