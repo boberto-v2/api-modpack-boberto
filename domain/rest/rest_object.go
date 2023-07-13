@@ -20,10 +20,6 @@ const (
 	APIKEY_CREDENTIAL_OBJECT = "apikey_credential_object"
 )
 
-type Rest interface {
-	CreateObject()
-}
-
 type RestObject struct {
 	globalUrl string
 	Resource  rest.Resource

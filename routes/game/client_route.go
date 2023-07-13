@@ -38,12 +38,12 @@ func CreateClientRoute(router gin.IRouter) {
 		modpackPath := filepath.Join(cfg.ModPacks.PublicPath, nameNormalized)
 		file_service.CreateAndDestroyDirectory(modpackPath)
 
-		modpackCache := modpack_cache_models.
-			ModPackCache{
-			Environment: modpack_models.Client.GetFolderName(),
-			Name:        createClientModPackRequest.Name,
-		}.New()
+		modpackCache := modpack_cache_models.New()
+		modpackCache.Environment = ""
+		modpackCache.Name = createClientModPackRequest.Name
+		modpackCache.NormalizedName = common.NormalizeString(createClientModPackRequest.Name)
 		modpackCache.Status = modpack_models.PendingClientFiles
+
 		modpack_cache.Create(modpackCache)
 		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
 		uploadCache := upload_service.Create(outputDir)
@@ -69,15 +69,16 @@ func CreateClientRoute(router gin.IRouter) {
 		restmodPackObject.CreateModPackObject(modpackCache)
 		// create a rest object to represent a upload object
 		// form with more idiomatic sintax
-		restUploadFileObject := rest_object.RestObject{
-			Link: []rest.Link{
-				{
-					Rel:    "upload_file",
-					Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
-					Method: "POST",
-				},
+
+		restUploadFileObject := rest_object.New(ctx)
+		restUploadFileObject.Link = []rest.Link{
+			{
+				Rel:    "upload_file",
+				Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
+				Method: "POST",
 			},
-		}.CreateFileObject(&uploadCache)
+		}
+		restUploadFileObject.CreateFileObject(&uploadCache)
 
 		restWaitingObject := rest_object.New(ctx).CreateWaitingObject(rest_object.WaitingObject{
 			Message: rest_object.WAITING_CLIENT_MESSAGE,

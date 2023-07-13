@@ -12,11 +12,6 @@ import (
 // TODO: Show to daniel how context works with Goroutines and how goroutines works and how to share data across routes
 func JWTMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		//go to next middleware if x-api-key is provided
-		authHeaderApiKey := ctx.GetHeader("x-api-key")
-		if authHeaderApiKey != "" {
-			ctx.Next()
-		}
 		authHeaderBaerer, err := extractBearerToken(ctx.GetHeader("Authorization"))
 		if err != nil {
 			ctx.AbortWithError(http.StatusUnauthorized, err)

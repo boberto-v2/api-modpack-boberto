@@ -14,9 +14,9 @@ type ModPackCache struct {
 	NormalizedName string                       `json:"normalized_name"`
 }
 
-func (modpack ModPackCache) New() ModPackCache {
+func New() ModPackCache {
+	modpack := ModPackCache{}
 	modpack.Id = common.GenerateUUID()
-	modpack.NormalizedName = common.NormalizeString(modpack.NormalizedName)
 	modpack.Status = modpack_models.Created
 	return modpack
 }

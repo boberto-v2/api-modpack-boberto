@@ -12,6 +12,11 @@ import (
 func ApiKeyMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		cfg := config.GetConfig()
+		authHeaderApiKey := ctx.GetHeader("Authorization")
+		if authHeaderApiKey != "" {
+			ctx.Next()
+			return
+		}
 		apiKeyHeader, err := authentication_apikey.GetApiKeyByHeaderValue(ctx.GetHeader(cfg.API.ApiKeyHeader))
 		if err != nil {
 			ctx.AbortWithError(http.StatusUnauthorized, err)

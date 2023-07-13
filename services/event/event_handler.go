@@ -38,12 +38,12 @@ func WebSocketHandler(ctx *gin.Context) {
 			sessionGroupMap[eventId][uid] = wsSession
 		}
 		defer wsSession.Close()
-		_, found := GetById(eventId)
-		if !found {
-			wsSession.WriteMessage(1, []byte("Event not found or expired"))
-			wsSession.Close()
-		}
-		echo(wsSession, eventId, uid)
+		// _, found := GetById(eventId)
+		// if !found {
+		// 	wsSession.WriteMessage(1, []byte("Event not found or expired"))
+		// 	wsSession.Close()
+		// }
+		//echo(wsSession, eventId, uid)
 		return
 	}
 	wsSession.Close()
