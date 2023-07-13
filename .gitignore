@@ -1,3 +1,4 @@
 public/modpacks/*
 !public/modpacks/.gitkeep
 .vscode/*
+test_shared/

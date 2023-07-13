@@ -34,3 +34,19 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
+
+    ftpd_server:
+        image: stilliard/pure-ftpd
+        container_name: pure-ftpd
+        ports:
+        - "21:21"
+        - "30000-30009:30000-30009"
+        volumes:
+        - "./test_shared/ftp:/home/username/"
+        - "./test_shared/passwd:/etc/pure-ftpd/passwd"
+        environment:
+            PUBLICHOST: "localhost"
+            FTP_USER_NAME: test
+            FTP_USER_PASS: test
+            FTP_USER_HOME: /home/username
+        restart: always
