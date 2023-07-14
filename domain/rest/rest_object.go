@@ -1,7 +1,6 @@
 package rest_object
 
 import (
-	"github.com/brutalzinn/boberto-modpack-api/common"
 	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
@@ -21,30 +20,14 @@ const (
 )
 
 type RestObject struct {
-	globalUrl string
-	Resource  rest.Resource
-	Link      []rest.Link
-	ctx       *gin.Context
+	Resource rest.Resource
+	Link     []rest.Link
+	ctx      *gin.Context
 }
 
 func New(ctx *gin.Context) RestObject {
 	restObject := RestObject{
-		globalUrl: common.GetUrl(ctx),
-		ctx:       ctx,
+		ctx: ctx,
 	}
 	return restObject
-}
-
-func (restObject RestObject) create() RestObject {
-	urlHost := common.GetUrl(restObject.ctx)
-	for i, href := range restObject.Link {
-		href = restObject.resolveHref(urlHost, href)
-		restObject.Link[i] = href
-	}
-	return restObject
-}
-
-func (restObject RestObject) resolveHref(url string, restLink rest.Link) rest.Link {
-	restLink.Href = url + restLink.Href
-	return restLink
 }

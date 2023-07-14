@@ -1,6 +1,7 @@
 package rest_object
 
 import (
+	"github.com/brutalzinn/boberto-modpack-api/common"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 
@@ -16,8 +17,7 @@ func (restObject RestObject) CreateApiKeycredentialObject(data ApiKeyCredentialO
 	restObject.Resource = rest.Resource{
 		Object:    APIKEY_CREDENTIAL_OBJECT,
 		Attribute: data,
-		Link:      restObject.Link,
+		Link:      common.GetCurrentHypermedia(restObject.ctx, data.Id),
 	}
-	restObject.create()
 	return restObject
 }

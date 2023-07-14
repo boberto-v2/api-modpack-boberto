@@ -20,6 +20,5 @@ func (restObject RestObject) CreateWaitingObject(data WaitingObject) RestObject 
 		Attribute: data,
 		Link:      restObject.Link,
 	}
-	restObject.create()
 	return restObject
 }

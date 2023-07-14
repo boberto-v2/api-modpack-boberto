@@ -19,11 +19,11 @@ func CreateRoutes(router gin.IRouter) {
 	}
 	game := router.Group("/game", middlewares.JWTMiddleware(), middlewares.ApiKeyMiddleware())
 	{
-		server := game.Group("/server")
+		server := game.Group("/client")
 		{
 			game_routes.CreateClientRoute(server)
 		}
-		client := game.Group("/client")
+		client := game.Group("/server")
 		{
 			game_routes.CreateServerRoute(client)
 		}

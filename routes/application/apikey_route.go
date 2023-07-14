@@ -1,13 +1,13 @@
 package application_routes
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	apikey_database "github.com/brutalzinn/boberto-modpack-api/database/apikey"
 	"github.com/brutalzinn/boberto-modpack-api/domain/request"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
+	"github.com/brutalzinn/boberto-modpack-api/middlewares"
 	authentication_apikey "github.com/brutalzinn/boberto-modpack-api/services/authentication/apikey"
 	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
 	rest "github.com/brutalzinn/go-easy-rest"
@@ -15,7 +15,7 @@ import (
 )
 
 func CreateApiKeyRoute(router gin.IRouter) {
-
+	router.Use(createApiHyperMedia().HypermediaMiddleware())
 	router.POST("/apikey/generate", func(ctx *gin.Context) {
 		currentUser, err := authentication_user.GetCurrentUser(ctx)
 		var apiKeyGenerateRequest request.ApiKeyRegisterRequest
@@ -42,24 +42,9 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			Id:     result.ID,
 			Key:    result.Key,
 			Header: "x-api-key",
-			Link: []rest.Link{
-				{
-					Rel:    "_self",
-					Href:   fmt.Sprintf("/user/apikey/%s", result.ID),
-					Method: "GET",
-				},
-				{
-					Rel:    "delete",
-					Href:   fmt.Sprintf("/user/apikey/delete/%s", result.ID),
-					Method: "DELETE",
-				},
-				{
-					Rel:    "regenerate",
-					Href:   fmt.Sprintf("/user/apikey/regenerate/%s", result.ID),
-					Method: "PUT",
-				},
-			},
+			Link:   ctx.Value("links").([]rest.Link),
 		}
+
 		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
 		restResourceData.Add(restObject.Resource)
 		ctx.JSON(http.StatusOK, restResourceData)
@@ -83,23 +68,6 @@ func CreateApiKeyRoute(router gin.IRouter) {
 				Id:     apiKey.ID,
 				Header: "x-api-key",
 				Scopes: apiKey.Scopes,
-				Link: []rest.Link{
-					{
-						Rel:    "_self",
-						Href:   fmt.Sprintf("/user/apikey/%s", apiKey.ID),
-						Method: "GET",
-					},
-					{
-						Rel:    "delete",
-						Href:   fmt.Sprintf("/user/apikey/delete/%s", apiKey.ID),
-						Method: "DELETE",
-					},
-					{
-						Rel:    "regenerate",
-						Href:   fmt.Sprintf("/user/apikey/regenerate/%s", apiKey.ID),
-						Method: "PUT",
-					},
-				},
 			}
 			restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
 			restResourceData.Add(restObject.Resource)
@@ -131,27 +99,12 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			return
 		}
 		// TODO: Show daniel how we will separate rest objects.
+
 		restResourceData := rest.NewResData()
 		apiKeyObject := rest_object.ApiKeyCredentialObject{
 			Id:     newApiKey.ID,
+			Key:    newApiKey.Key,
 			Header: "x-api-key",
-			Link: []rest.Link{
-				{
-					Rel:    "_self",
-					Href:   fmt.Sprintf("/user/apikey/%s", apiKeyEntity.ID),
-					Method: "GET",
-				},
-				{
-					Rel:    "delete",
-					Href:   fmt.Sprintf("/user/apikey/delete/%s", apiKeyEntity.ID),
-					Method: "DELETE",
-				},
-				{
-					Rel:    "regenerate",
-					Href:   fmt.Sprintf("/user/apikey/regenerate/%s", apiKeyEntity.ID),
-					Method: "PUT",
-				},
-			},
 		}
 		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
 		restResourceData.Add(restObject.Resource)
@@ -177,4 +130,19 @@ func CreateApiKeyRoute(router gin.IRouter) {
 		}
 		ctx.JSON(http.StatusOK, nil)
 	})
+
+}
+
+// new for to get hypermedia links.. but.. this is the same problem fix that we already solved before. We continues doing mistakes here.
+// lets to apply SOLID concepts to easy undestand what we are doing
+func createApiHyperMedia() *middlewares.Hypermedia {
+	var links []rest.Link
+	links = append(links, middlewares.CreateHyperMedia("_self", "GET", "/user/apikey/"))
+	links = append(links, middlewares.CreateHyperMedia("delete", "DELETE", "/user/apikey/delete/"))
+	links = append(links, middlewares.CreateHyperMedia("regenerate", "PUT", "/user/apikey/regenerate/"))
+	options := middlewares.Hypermedia{
+		Links: links,
+	}
+	hyperMedia := middlewares.New(options)
+	return hyperMedia
 }
