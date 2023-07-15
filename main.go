@@ -28,9 +28,9 @@ func main() {
 	}
 	config := config.GetConfig()
 	router := gin.Default()
-	router.GET("/healthchecker", func(ctx *gin.Context) {
+	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "pong!",
 		})
 	})
 	routes.CreateRoutes(router)
