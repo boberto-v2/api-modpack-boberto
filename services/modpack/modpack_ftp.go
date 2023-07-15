@@ -132,6 +132,7 @@ func UploadServer(modpack modpack_models.MinecraftModPack,
 func UploadClient(modpack modpack_models.MinecraftModPack,
 	ftpCredentials ftp_models.Ftp) error {
 
+	cfg := config.GetConfig()
 	nameNormalized := common.NormalizeString(modpack.Name)
 
 	modPackPath := filepath.Join(

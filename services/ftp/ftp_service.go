@@ -47,10 +47,12 @@ func ReadFileFTP(ftpFile string, client *ftp.ServerConn) ([]byte, error) {
 	return buf, nil
 }
 
-func UploadFileFTP(fileFtp string, relativeToPath string, client *ftp.ServerConn) error {
+func UploadFileFTP(fileFtp string, relativeToLocalPath string, client *ftp.ServerConn) error {
 	client.ChangeDir(FTP_SEPARATOR)
 	directory, filename := filepath.Split(fileFtp)
 	dirs := strings.Split(directory, string(os.PathSeparator))
+	fmt.Printf("###FILE:%s", filepath.Join(relativeToLocalPath, fileFtp))
+
 	for _, dir := range dirs {
 		if dir == "" {
 			continue
@@ -72,7 +74,9 @@ func UploadFileFTP(fileFtp string, relativeToPath string, client *ftp.ServerConn
 			}
 		}
 	}
-	file, err := os.Open(filepath.Join(relativeToPath, fileFtp))
+	file, err := os.Open(filepath.Join(relativeToLocalPath, fileFtp))
+	fmt.Printf("###FILE:%s", filepath.Join(relativeToLocalPath, fileFtp))
+
 	if err != nil {
 		return fmt.Errorf("failed to open file: %v", err)
 	}
@@ -84,9 +88,9 @@ func UploadFileFTP(fileFtp string, relativeToPath string, client *ftp.ServerConn
 	return nil
 }
 
-func UploadMultipleFilesFTP(files []string, relativeToPath string, client *ftp.ServerConn) error {
+func UploadMultipleFilesFTP(files []string, relativeToLocalPath string, client *ftp.ServerConn) error {
 	for _, filePath := range files {
-		err := UploadFileFTP(filePath, relativeToPath, client)
+		err := UploadFileFTP(filePath, relativeToLocalPath, client)
 		if err != nil {
 			return err
 		}

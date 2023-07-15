@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
+	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	manifest_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest/models"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
@@ -15,10 +16,11 @@ import (
 
 func CreateModPackFilesManifest(modPack modpack_models.MinecraftModPack,
 	environment modpack_models.MinecraftEnvironment) []manifest_models.ManifestFile {
+	cfg := config.GetConfig()
 	normalizedName := common.NormalizeString(modPack.Name)
-	modpackPath := filepath.Join(cfg.ModPacks.ManifestName,
+	modpackPath := filepath.Join(
 		normalizedName,
-		environment.GetFolderName())
+		environment.GetFolderName(), cfg.ModPacks.ManifestName)
 
 	modpackFiles := []manifest_models.ManifestFile{}
 	err := filepath.Walk(modpackPath,

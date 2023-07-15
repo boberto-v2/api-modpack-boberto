@@ -12,7 +12,7 @@ import (
 
 // TODO: Show daniel how we will handle with files for all necessaries uploads
 func CreateUploadRoute(router gin.IRouter) {
-	router.POST("/upload/:id", func(ctx *gin.Context) {
+	router.POST("/upload/:id/:event", func(ctx *gin.Context) {
 		id := ctx.Param("id")
 		uploadCache, err := upload_service.GetById(id)
 		if err != nil {
@@ -36,7 +36,16 @@ func CreateUploadRoute(router gin.IRouter) {
 		restUploadFileObject.CreateUploadFileObject(uploadCache)
 		ctx.JSON(http.StatusAccepted, restUploadFileObject.Resource)
 	})
+}
 
+func UnzipIfNecessary(eventId, file, outputDir string) {
+	isZip := upload_service.IsZip(file)
+	if !isZip {
+		return
+	}
+	upload_service.UnZip(file, outputDir, func(s string) {
+		EmitIfNecessary(eventId, "unzip.. "+s)
+	})
 }
 
 func EmitIfNecessary(eventId, message string) {
@@ -45,12 +54,4 @@ func EmitIfNecessary(eventId, message string) {
 		return
 	}
 	event.Emit(message)
-}
-func UnzipIfNecessary(eventId, file, outputDir string) {
-	isZip := upload_service.IsZip(file)
-	if isZip {
-		upload_service.UnZip(file, outputDir, func(s string) {
-			EmitIfNecessary(eventId, "unzip.. "+s)
-		})
-	}
 }

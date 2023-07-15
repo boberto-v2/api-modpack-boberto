@@ -1,9 +1,10 @@
 package game_client_request
 
 type FinishClientModPackRequest struct {
-	ServerFtp      *Ftp            `json:"server_ftp"`
-	ClientFtp      *Ftp            `json:"client_ftp"`
-	PterodactylApi *PterodactylApi `json:"pterodactyl_api"`
+	Name           string                  `json:"name"`
+	ServerFtp      *Ftp                    `json:"server_ftp"`
+	ClientFtp      *Ftp                    `json:"client_ftp"`
+	PterodactylApi *PterodactylIntegration `json:"pterodactyl_api"`
 }
 
 type Ftp struct {
@@ -13,7 +14,7 @@ type Ftp struct {
 	Directory string `json:"directory"`
 }
 
-type PterodactylApi struct {
+type PterodactylIntegration struct {
 	BaseUrl  string `json:"base_url"`
 	ServerId string `json:"server_id"`
 	ApiKey   string `json:"api_key"`

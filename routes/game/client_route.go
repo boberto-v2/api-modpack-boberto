@@ -11,6 +11,8 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/middlewares"
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
+	ftp_models "github.com/brutalzinn/boberto-modpack-api/services/ftp/models"
+	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
@@ -41,13 +43,12 @@ func CreateClientRoute(router gin.IRouter) {
 		file_service.CreateAndDestroyDirectory(modpackPath)
 
 		modpackCache := modpack_cache_models.New()
-		modpackCache.Environment = ""
 		modpackCache.Name = createClientModPackRequest.Name
 		modpackCache.NormalizedName = common.NormalizeString(createClientModPackRequest.Name)
 		modpackCache.Status = modpack_models.PendingClientFiles
 
 		modpack_cache.Create(modpackCache)
-		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
+		outputDir := filepath.Join(modpackPath, modpack_models.Client.GetFolderName())
 		uploadCache := upload_service.Create(outputDir)
 
 		///form one to create rest
@@ -62,35 +63,42 @@ func CreateClientRoute(router gin.IRouter) {
 		restEventObject := rest_object.New(ctx)
 		restEventObject.CreateEventObject(event)
 
-		ctx.JSON(http.StatusOK, gin.H{"data": restModPackFileObject.Resource, "event": restEventObject.Resource,
+		ctx.JSON(http.StatusOK, gin.H{
+			"data":          restModPackFileObject.Resource,
+			"event":         restEventObject.Resource,
 			"relationships": restUploadFileObject.Resource})
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
-		// id := ctx.Params.ByName("id")
-		// var finishClientModpackRequest game_client_request.FinishClientModPackRequest
-		// if err := ctx.ShouldBindJSON(&finishClientModpackRequest); err != nil {
-		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// 	return
-		// }
-		// modpackCache, found := modpack_cache.GetById(id)
-		// if !found {
-		// 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
-		// 	return
-		// }
-		// modpack := modpack_models.MinecraftModPack{
-		// 	Name: modpackCache.Name,
-		// }
-		// ftpClientConnection := ftp_models.Ftp{
-		// 	Address:   finishClientModpackRequest.ClientFtp.Address,
-		// 	User:      finishClientModpackRequest.ClientFtp.User,
-		// 	Password:  finishClientModpackRequest.ClientFtp.Password,
-		// 	Directory: finishClientModpackRequest.ClientFtp.Directory,
-		// }
-		// modpack_service.UploadClient(modpack, ftpClientConnection)
-		// // create modpack rest object
-		// restObject := rest_object.New(ctx).CreateModPackObject(modpackCache)
-		// ctx.JSON(http.StatusOK, restObject)
+		id := ctx.Params.ByName("id")
+		var finishClientModpackRequest game_client_request.FinishClientModPackRequest
+		if err := ctx.ShouldBindJSON(&finishClientModpackRequest); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		modpackCache, found := modpack_cache.GetById(id)
+		if !found {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
+			return
+		}
+
+		modpack := modpack_models.MinecraftModPack{
+			Name: modpackCache.Name,
+		}
+
+		ftpClientConnection := ftp_models.Ftp{
+			Address:   finishClientModpackRequest.ClientFtp.Address,
+			User:      finishClientModpackRequest.ClientFtp.User,
+			Password:  finishClientModpackRequest.ClientFtp.Password,
+			Directory: finishClientModpackRequest.ClientFtp.Directory,
+		}
+		modpack_service.CreateModPackFilesManifest(modpack, modpack_models.Client)
+		modpack_service.UploadClient(modpack, ftpClientConnection)
+
+		// create modpack rest object
+		restObject := rest_object.New(ctx)
+		restObject.CreateModPackObject(modpackCache)
+		ctx.JSON(http.StatusOK, restObject)
 	})
 }
 func createHypermediaUrl() *middlewares.Hypermedia {

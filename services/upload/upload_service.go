@@ -27,6 +27,7 @@ func Create(outputDir string) *upload_cache.UploadCache {
 	upload_cache.Create(uploadCache)
 	return &uploadCache
 }
+
 func GetById(id string) (*upload_cache.UploadCache, error) {
 	uploadCache, found := upload_cache.GetById(id)
 	if !found {

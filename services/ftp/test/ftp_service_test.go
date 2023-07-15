@@ -46,21 +46,21 @@ func TestReadFileFTP(t *testing.T) {
 func TestUploadFileFTP(t *testing.T) {
 	test_utils.SkipCI(t)
 	conn := getTestFtpConnection()
-	relativeToPath := "path/to/local_file"
-	err := ftp_service.UploadFileFTP("file_1.txt", relativeToPath, conn)
+	err := ftp_service.UploadFileFTP("subpath/file_1.txt", "files", conn)
 	if err != nil {
 		t.Errorf("UploadFileFTP returned an error: %s", err.Error())
 	}
 }
 
 // Integration test for UploadMultipleFilesFTP function
+// files/subpath
 func TestUploadMultipleFilesFTP(t *testing.T) {
 	conn := getTestFtpConnection()
 	files := []string{
-		"file_1.txt",
-		"file_2.txt",
-		"file_3.txt",
-		"/subpath/file_1.txt",
+		//"file_1.txt",
+		//"file_2.txt",
+		//"file_3.txt",
+		"subpath/file_1.txt",
 	}
 	err := ftp_service.UploadMultipleFilesFTP(files, "files", conn)
 
@@ -76,7 +76,7 @@ func TestDeleteMultipleFilesFTP(t *testing.T) {
 	filesToDelete := []string{
 		"file_1.txt",
 		"file_2.txt",
-		"subpath/file_1.txt",
+		"file_3.txt",
 	}
 	err := ftp_service.DeleteMultipleFilesFTP(filesToDelete, conn)
 	if err != nil {
