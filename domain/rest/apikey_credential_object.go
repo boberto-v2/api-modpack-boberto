@@ -13,7 +13,7 @@ type ApiKeyCredentialObject struct {
 	Link   []rest.Link `json:"link"`
 }
 
-func (restObject RestObject) CreateApiKeycredentialObject(data ApiKeyCredentialObject) RestObject {
+func (restObject *RestObject) CreateApiKeycredentialObject(data ApiKeyCredentialObject) *RestObject {
 	restObject.Resource = rest.Resource{
 		Object:    APIKEY_CREDENTIAL_OBJECT,
 		Attribute: data,

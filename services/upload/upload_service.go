@@ -13,21 +13,21 @@ import (
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
-	upload_cache_models "github.com/brutalzinn/boberto-modpack-api/services/upload/cache/models"
 )
 
-func Create(outputDir string) upload_cache_models.UploadCache {
+func Create(outputDir string) *upload_cache.UploadCache {
 	id := common.GenerateUUID()
-	uploadCache := upload_cache_models.UploadCache{
+	uploadCache := upload_cache.UploadCache{
 		Id:        id,
 		CreateAt:  time.Now(),
 		OutputDir: outputDir,
+		Status:    upload_cache.UPLOAD_CREATED,
 		ExpireAt:  time.Now().Add(time.Duration(time.Hour * 1)),
 	}
 	upload_cache.Create(uploadCache)
-	return uploadCache
+	return &uploadCache
 }
-func GetById(id string) (*upload_cache_models.UploadCache, error) {
+func GetById(id string) (*upload_cache.UploadCache, error) {
 	uploadCache, found := upload_cache.GetById(id)
 	if !found {
 		return nil, errors.New("The token provided is invalid or expired.")
@@ -35,22 +35,18 @@ func GetById(id string) (*upload_cache_models.UploadCache, error) {
 	return &uploadCache, nil
 }
 
-func SaveFiles(id string, files []*multipart.FileHeader, callback func(string)) error {
-	uploadCache, err := GetById(id)
-	if err != nil {
-		return err
-	}
+func SaveFiles(outputDir string, files []*multipart.FileHeader, callback func(string)) error {
 	for _, file := range files {
-		err := saveFile(uploadCache.OutputDir, file)
+		filePath, err := saveFile(outputDir, file)
 		if err != nil {
 			return err
 		}
-		callback(fmt.Sprintf("saving...", file.Filename))
+		callback(filePath)
 	}
 	return nil
 }
 
-func saveFile(fileDir string, file *multipart.FileHeader) error {
+func saveFile(fileDir string, file *multipart.FileHeader) (string, error) {
 	filePath := filepath.Join(fileDir, file.Filename)
 	out, err := os.Create(filePath)
 	if err != nil {
@@ -62,7 +58,7 @@ func saveFile(fileDir string, file *multipart.FileHeader) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return nil
+	return filePath, nil
 }
 
 func UnZip(zipFilePath string, outputPath string, callback func(string)) {

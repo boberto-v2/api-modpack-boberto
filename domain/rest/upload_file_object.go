@@ -3,7 +3,8 @@ package rest_object
 import (
 	"fmt"
 
-	upload_cache_models "github.com/brutalzinn/boberto-modpack-api/services/upload/cache/models"
+	"github.com/brutalzinn/boberto-modpack-api/common"
+	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 
@@ -15,7 +16,7 @@ type FileObject struct {
 	Id string `json:"id"`
 }
 
-func (restObject RestObject) CreateFileObject(uploadCache *upload_cache_models.UploadCache) RestObject {
+func (restObject *RestObject) CreateUploadFileObject(uploadCache *upload_cache.UploadCache) *RestObject {
 	restObject.Resource = rest.Resource{
 		Object: FILE_OBJECT,
 		Attribute: FileObject{
@@ -23,8 +24,8 @@ func (restObject RestObject) CreateFileObject(uploadCache *upload_cache_models.U
 		},
 		Link: []rest.Link{
 			{
-				Rel:    "upload_file",
-				Href:   fmt.Sprintf("/application/upload/%s", uploadCache.Id),
+				Rel:    UPLOAD_FILE,
+				Href:   fmt.Sprintf("%s/application/upload/%s", common.GetUrl(restObject.ctx), uploadCache.Id),
 				Method: "POST",
 			},
 		},

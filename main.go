@@ -6,7 +6,6 @@ import (
 
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	"github.com/brutalzinn/boberto-modpack-api/routes"
-	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +33,6 @@ func main() {
 			"message": "pong",
 		})
 	})
-	modpack_cache.New()
 	routes.CreateRoutes(router)
 	router.Run(fmt.Sprintf(":%s", config.API.Port))
 }

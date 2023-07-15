@@ -12,17 +12,17 @@ import (
 func ApiKeyMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		cfg := config.GetConfig()
-		authHeaderApiKey := ctx.GetHeader("Authorization")
-		if authHeaderApiKey != "" {
+		apiKeyHeader := ctx.GetHeader(cfg.API.ApiKeyHeader)
+		if ctx.Value("user_id") != nil {
 			ctx.Next()
 			return
 		}
-		apiKeyHeader, err := authentication_apikey.GetApiKeyByHeaderValue(ctx.GetHeader(cfg.API.ApiKeyHeader))
+		apiKey, err := authentication_apikey.GetApiKeyByHeaderValue(apiKeyHeader)
 		if err != nil {
 			ctx.AbortWithError(http.StatusUnauthorized, err)
 			return
 		}
-		ctx.Set("user_id", apiKeyHeader.User.ID)
+		ctx.Set("user_id", apiKey.User.ID)
 		ctx.Next()
 	}
 }

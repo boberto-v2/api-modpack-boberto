@@ -15,7 +15,7 @@ import (
 )
 
 func CreateApiKeyRoute(router gin.IRouter) {
-	router.Use(createApiHyperMedia().HypermediaMiddleware())
+	router.Use(createHypermediaUrl().HypermediaMiddleware())
 	router.POST("/apikey/generate", func(ctx *gin.Context) {
 		currentUser, err := authentication_user.GetCurrentUser(ctx)
 		var apiKeyGenerateRequest request.ApiKeyRegisterRequest
@@ -37,17 +37,15 @@ func CreateApiKeyRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		restResourceData := rest.NewResData()
 		apiKeyObject := rest_object.ApiKeyCredentialObject{
 			Id:     result.ID,
 			Key:    result.Key,
 			Header: "x-api-key",
-			Link:   ctx.Value("links").([]rest.Link),
 		}
 
-		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
-		restResourceData.Add(restObject.Resource)
-		ctx.JSON(http.StatusOK, restResourceData)
+		apiKeyCredentialsObject := rest_object.New(ctx)
+		apiKeyCredentialsObject.CreateApiKeycredentialObject(apiKeyObject)
+		ctx.JSON(http.StatusOK, apiKeyCredentialsObject.Resource)
 	})
 
 	router.GET("/apikey", func(ctx *gin.Context) {
@@ -69,8 +67,9 @@ func CreateApiKeyRoute(router gin.IRouter) {
 				Header: "x-api-key",
 				Scopes: apiKey.Scopes,
 			}
-			restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
-			restResourceData.Add(restObject.Resource)
+			apiKeyCredentialsObject := rest_object.New(ctx)
+			apiKeyCredentialsObject.CreateApiKeycredentialObject(apiKeyObject)
+			restResourceData.Add(apiKeyCredentialsObject.Resource)
 		}
 
 		ctx.JSON(http.StatusOK, restResourceData)
@@ -100,15 +99,14 @@ func CreateApiKeyRoute(router gin.IRouter) {
 		}
 		// TODO: Show daniel how we will separate rest objects.
 
-		restResourceData := rest.NewResData()
 		apiKeyObject := rest_object.ApiKeyCredentialObject{
 			Id:     newApiKey.ID,
 			Key:    newApiKey.Key,
 			Header: "x-api-key",
 		}
-		restObject := rest_object.New(ctx).CreateApiKeycredentialObject(apiKeyObject)
-		restResourceData.Add(restObject.Resource)
-		ctx.JSON(http.StatusOK, restResourceData)
+		apiKeyCredentialsObject := rest_object.New(ctx)
+		apiKeyCredentialsObject.CreateApiKeycredentialObject(apiKeyObject)
+		ctx.JSON(http.StatusOK, apiKeyCredentialsObject.Resource)
 	})
 
 	router.POST("/apikey/delete/:id", func(ctx *gin.Context) {
@@ -133,13 +131,11 @@ func CreateApiKeyRoute(router gin.IRouter) {
 
 }
 
-// new for to get hypermedia links.. but.. this is the same problem fix that we already solved before. We continues doing mistakes here.
-// lets to apply SOLID concepts to easy undestand what we are doing
-func createApiHyperMedia() *middlewares.Hypermedia {
+func createHypermediaUrl() *middlewares.Hypermedia {
 	var links []rest.Link
-	links = append(links, middlewares.CreateHyperMedia("_self", "GET", "/user/apikey/"))
-	links = append(links, middlewares.CreateHyperMedia("delete", "DELETE", "/user/apikey/delete/"))
-	links = append(links, middlewares.CreateHyperMedia("regenerate", "PUT", "/user/apikey/regenerate/"))
+	links = append(links, middlewares.CreateHypermediaUrl("_self", "GET", "/user/apikey/"))
+	links = append(links, middlewares.CreateHypermediaUrl("delete", "DELETE", "/user/apikey/delete/"))
+	links = append(links, middlewares.CreateHypermediaUrl("regenerate", "PUT", "/user/apikey/regenerate/"))
 	options := middlewares.Hypermedia{
 		Links: links,
 	}

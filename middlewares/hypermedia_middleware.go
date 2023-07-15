@@ -25,7 +25,11 @@ type Hypermedia struct {
 	Links []rest.Link `json:"links"`
 }
 
-func CreateHyperMedia(rel, method, href string) rest.Link {
+// / REL ( ACTION )
+// / HTTP METHOD
+// / HREF URL
+// HOST URL/REL_URL/RESOURCE ID
+func CreateHypermediaUrl(rel, method, href string) rest.Link {
 	hypermedia := rest.Link{
 		Rel:    rel,
 		Href:   href,

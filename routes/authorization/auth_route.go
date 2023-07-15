@@ -33,8 +33,9 @@ func CreateAuthRoutes(router gin.IRouter) {
 		//The resource can change. REMEMBER IT.
 		//At this case, the user can be blocked because many attemps to login, in this case.. waiting object will received too.
 		//Soo.. the client needs to wait for a array of object and handle for itself.
-		userRestObject := rest_object.New(ctx).CreateUserCredentialsObject(token)
-		ctx.JSON(http.StatusOK, gin.H{"data": userRestObject.Resource})
+		userCredentialsObject := rest_object.New(ctx)
+		userCredentialsObject.CreateUserCredentialsObject(token)
+		ctx.JSON(http.StatusOK, gin.H{"data": userCredentialsObject.Resource})
 	})
 
 	router.POST("/register", func(ctx *gin.Context) {

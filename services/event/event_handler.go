@@ -28,8 +28,8 @@ func WebSocketHandler(ctx *gin.Context) {
 		wsSession.Close()
 		log.Println(err)
 	}
-	if _, ok := wsURLParam["name"]; ok {
-		eventId := wsURLParam["name"][0]
+	if _, ok := wsURLParam["id"]; ok {
+		eventId := wsURLParam["id"][0]
 		log.Printf("A client connect to %s", eventId)
 		if _, ok := sessionGroupMap[eventId]; ok {
 			sessionGroupMap[eventId][uid] = wsSession
@@ -43,7 +43,7 @@ func WebSocketHandler(ctx *gin.Context) {
 		// 	wsSession.WriteMessage(1, []byte("Event not found or expired"))
 		// 	wsSession.Close()
 		// }
-		//echo(wsSession, eventId, uid)
+		echo(wsSession, eventId, uid)
 		return
 	}
 	wsSession.Close()
@@ -75,8 +75,9 @@ func (event Event) Emit(messageContent string) {
 	emit(event.Id, []byte(messageContent))
 }
 
-func emit(eventName string, messageContent []byte) {
-	for _, wsSession := range sessionGroupMap[eventName] {
+func emit(eventId string, messageContent []byte) {
+	log.Printf("emit event to " + eventId + "content " + string(messageContent))
+	for _, wsSession := range sessionGroupMap[eventId] {
 		err := wsSession.WriteMessage(1, messageContent)
 		if err != nil {
 			log.Println(err)

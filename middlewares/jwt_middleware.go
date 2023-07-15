@@ -12,7 +12,12 @@ import (
 // TODO: Show to daniel how context works with Goroutines and how goroutines works and how to share data across routes
 func JWTMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authHeaderBaerer, err := extractBearerToken(ctx.GetHeader("Authorization"))
+		authorizationHeader := ctx.GetHeader("Authorization")
+		if authorizationHeader == "" {
+			ctx.Next()
+			return
+		}
+		authHeaderBaerer, err := extractBearerToken(authorizationHeader)
 		if err != nil {
 			ctx.AbortWithError(http.StatusUnauthorized, err)
 			return

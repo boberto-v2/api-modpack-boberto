@@ -8,14 +8,21 @@ import (
 	config "github.com/brutalzinn/boberto-modpack-api/configs"
 	game_client_request "github.com/brutalzinn/boberto-modpack-api/domain/request/game/client"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
+	"github.com/brutalzinn/boberto-modpack-api/middlewares"
+	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
+	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
+	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
 
 func CreateClientRoute(router gin.IRouter) {
+
+	router.Use(createHypermediaUrl().HypermediaMiddleware())
+
 	router.GET("/modpack/:id", func(ctx *gin.Context) {
 		id := ctx.Params.ByName("id")
 		modpack, _ := modpack_cache.GetById(id)
@@ -40,20 +47,23 @@ func CreateClientRoute(router gin.IRouter) {
 		modpackCache.Status = modpack_models.PendingClientFiles
 
 		modpack_cache.Create(modpackCache)
-		// outputDir := filepath.Join(modpackPath, modpackCache.Environment)
-		// uploadCache := upload_service.Create(outputDir)
+		outputDir := filepath.Join(modpackPath, modpackCache.Environment)
+		uploadCache := upload_service.Create(outputDir)
 
 		///form one to create rest
 		restModPackFileObject := rest_object.New(ctx)
 		restModPackFileObject.CreateModPackObject(modpackCache)
 		// create a rest object to represent a upload object
 		// form with more idiomatic sintax
-		// restUploadFileObject := rest_object.New(ctx)
-		// restUploadFileObject.CreateFileObject(&uploadCache)
-		// restResourceData := rest.NewResData()
-		// restResourceData.Add(restModPackFileObject.Resource)
-		// restResourceData.Add(restUploadFileObject.Resource)
-		ctx.JSON(http.StatusOK, restModPackFileObject)
+		restUploadFileObject := rest_object.New(ctx)
+		restUploadFileObject.CreateUploadFileObject(uploadCache)
+
+		event := event_service.Create(event_service.MODPACK_FEEDBACK_EVENT)
+		restEventObject := rest_object.New(ctx)
+		restEventObject.CreateEventObject(event)
+
+		ctx.JSON(http.StatusOK, gin.H{"data": restModPackFileObject.Resource, "event": restEventObject.Resource,
+			"relationships": restUploadFileObject.Resource})
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
@@ -82,4 +92,14 @@ func CreateClientRoute(router gin.IRouter) {
 		// restObject := rest_object.New(ctx).CreateModPackObject(modpackCache)
 		// ctx.JSON(http.StatusOK, restObject)
 	})
+}
+func createHypermediaUrl() *middlewares.Hypermedia {
+	var links []rest.Link
+	links = append(links, middlewares.CreateHypermediaUrl("_self", "GET", "/game/client/modpack/"))
+	links = append(links, middlewares.CreateHypermediaUrl("finish", "POST", "/game/client/modpack/finish/"))
+	options := middlewares.Hypermedia{
+		Links: links,
+	}
+	hyperMedia := middlewares.New(options)
+	return hyperMedia
 }
