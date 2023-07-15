@@ -78,7 +78,10 @@ func (event Event) Emit(messageContent string) {
 func emit(eventId string, messageContent []byte) {
 	log.Printf("emit event to " + eventId + "content " + string(messageContent))
 	for _, wsSession := range sessionGroupMap[eventId] {
-		err := wsSession.WriteMessage(1, messageContent)
+		err := wsSession.WriteJSON(map[string]any{
+			"event": eventId,
+			"data":  messageContent,
+		})
 		if err != nil {
 			log.Println(err)
 		}

@@ -10,7 +10,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-var event_cache = cache.New(5*time.Minute, 10*time.Minute)
+var event_cache = cache.New(15*time.Minute, 5*time.Minute)
 var sessionGroupMap = make(map[string]map[uuid.UUID]*websocket.Conn)
 
 type Event struct {

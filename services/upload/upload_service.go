@@ -2,11 +2,6 @@ package upload_service
 
 import (
 	"errors"
-	"fmt"
-	"io"
-	"log"
-	"mime/multipart"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -36,36 +31,8 @@ func GetById(id string) (*upload_cache.UploadCache, error) {
 	return &uploadCache, nil
 }
 
-func SaveFiles(outputDir string, files []*multipart.FileHeader, callback func(string)) error {
-	for _, file := range files {
-		filePath, err := saveFile(outputDir, file)
-		if err != nil {
-			return err
-		}
-		callback(filePath)
-	}
-	return nil
-}
-
-func saveFile(fileDir string, file *multipart.FileHeader) (string, error) {
-	filePath := filepath.Join(fileDir, file.Filename)
-	out, err := os.Create(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-	readerFile, _ := file.Open()
-	_, err = io.Copy(out, readerFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return filePath, nil
-}
-
-func UnZip(zipFilePath string, outputPath string, callback func(string)) {
-	callback(fmt.Sprintf("unziping.. %s", zipFilePath))
+func UnZip(zipFilePath string, outputPath string) {
 	file_service.Unzip(zipFilePath, outputPath)
-	callback(fmt.Sprintf("unzip completed %s", zipFilePath))
 }
 
 func IsZip(filePath string) bool {

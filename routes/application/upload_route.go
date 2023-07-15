@@ -1,7 +1,9 @@
 package application_routes
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
 
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
@@ -12,9 +14,11 @@ import (
 
 // TODO: Show daniel how we will handle with files for all necessaries uploads
 func CreateUploadRoute(router gin.IRouter) {
-	router.POST("/upload/:id/:event", func(ctx *gin.Context) {
+	router.POST("/upload/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
+		eventId := ctx.Query("event")
 		uploadCache, err := upload_service.GetById(id)
+		event, eventFound := event_service.GetById(eventId)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -25,33 +29,20 @@ func CreateUploadRoute(router gin.IRouter) {
 			return
 		}
 		files := form.File["files"]
-		eventId := form.Value["event"][0]
-		go upload_service.SaveFiles(uploadCache.OutputDir, files, func(file string) {
-			EmitIfNecessary(eventId, "saving.. "+file)
-			UnzipIfNecessary(eventId, file, uploadCache.OutputDir)
-		})
+		for _, file := range files {
+			filename := filepath.Base(file.Filename)
+			if err := ctx.SaveUploadedFile(file, filepath.Join(uploadCache.OutputDir, filename)); err != nil {
+				if eventFound {
+					event.Emit(fmt.Sprintf("upload file", err.Error()))
+				}
+				ctx.String(http.StatusBadRequest, "upload file err: %s", err.Error())
+				return
+			}
+		}
 		uploadCache.Status = upload_cache.UPLOAD_COMPLETED
 		uploadCache.Save()
 		restUploadFileObject := rest_object.New(ctx)
 		restUploadFileObject.CreateUploadFileObject(uploadCache)
 		ctx.JSON(http.StatusAccepted, restUploadFileObject.Resource)
 	})
-}
-
-func UnzipIfNecessary(eventId, file, outputDir string) {
-	isZip := upload_service.IsZip(file)
-	if !isZip {
-		return
-	}
-	upload_service.UnZip(file, outputDir, func(s string) {
-		EmitIfNecessary(eventId, "unzip.. "+s)
-	})
-}
-
-func EmitIfNecessary(eventId, message string) {
-	event, found := event_service.GetById(eventId)
-	if !found {
-		return
-	}
-	event.Emit(message)
 }
