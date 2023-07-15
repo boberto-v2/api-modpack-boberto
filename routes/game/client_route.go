@@ -15,6 +15,7 @@ import (
 	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
 	modpack_cache "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
+	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
 	rest "github.com/brutalzinn/go-easy-rest"
@@ -63,10 +64,14 @@ func CreateClientRoute(router gin.IRouter) {
 		restEventObject := rest_object.New(ctx)
 		restEventObject.CreateEventObject(event)
 
+		//i think this is more readable now.
 		ctx.JSON(http.StatusOK, gin.H{
-			"data":          restModPackFileObject.Resource,
-			"event":         restEventObject.Resource,
-			"relationships": restUploadFileObject.Resource})
+			"resource": restModPackFileObject.Resource,
+			"relationships": map[string]any{
+				"object": restUploadFileObject.Resource,
+				"event":  restEventObject.Resource,
+			},
+		})
 	})
 
 	router.POST("/modpack/finish/:id", func(ctx *gin.Context) {
@@ -81,20 +86,19 @@ func CreateClientRoute(router gin.IRouter) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "The token provided is invalid or expired"})
 			return
 		}
-
 		modpack := modpack_models.MinecraftModPack{
-			Name: modpackCache.Name,
+			Name:    finishClientModpackRequest.Name,
+			FileUrl: finishClientModpackRequest.FileUrl,
 		}
-
 		ftpClientConnection := ftp_models.Ftp{
 			Address:   finishClientModpackRequest.ClientFtp.Address,
 			User:      finishClientModpackRequest.ClientFtp.User,
 			Password:  finishClientModpackRequest.ClientFtp.Password,
 			Directory: finishClientModpackRequest.ClientFtp.Directory,
 		}
-		modpack_service.CreateModPackFilesManifest(modpack, modpack_models.Client)
+		files := modpack_service.GetModPackFiles(modpack, modpack_models.Client)
+		manifest_service.WriteModPackManifestFiles(modpack, files, modpack_models.Client)
 		modpack_service.UploadClient(modpack, ftpClientConnection)
-
 		// create modpack rest object
 		restObject := rest_object.New(ctx)
 		restObject.CreateModPackObject(modpackCache)

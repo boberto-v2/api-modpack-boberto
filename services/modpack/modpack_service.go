@@ -14,13 +14,14 @@ import (
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
 )
 
-func CreateModPackFilesManifest(modPack modpack_models.MinecraftModPack,
+func GetModPackFiles(modPack modpack_models.MinecraftModPack,
 	environment modpack_models.MinecraftEnvironment) []manifest_models.ManifestFile {
-	cfg := config.GetConfig()
 	normalizedName := common.NormalizeString(modPack.Name)
+	cfg := config.GetConfig()
 	modpackPath := filepath.Join(
+		cfg.ModPacks.PublicPath,
 		normalizedName,
-		environment.GetFolderName(), cfg.ModPacks.ManifestName)
+		environment.GetFolderName())
 
 	modpackFiles := []manifest_models.ManifestFile{}
 	err := filepath.Walk(modpackPath,
@@ -32,7 +33,7 @@ func CreateModPackFilesManifest(modPack modpack_models.MinecraftModPack,
 				return nil
 			}
 			relativePath := strings.ReplaceAll(path, modpackPath+string(os.PathSeparator), "")
-			checksum, _ := file_service.GetCRC32(path)
+			checksum, _ := file_service.GetChecksum(path)
 			fileType := GetType(relativePath)
 			modpackFile := manifest_models.ManifestFile{
 				Name:        info.Name(),

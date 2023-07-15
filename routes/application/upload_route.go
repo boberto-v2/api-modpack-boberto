@@ -3,6 +3,7 @@ package application_routes
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
@@ -31,13 +32,23 @@ func CreateUploadRoute(router gin.IRouter) {
 		files := form.File["files"]
 		for _, file := range files {
 			filename := filepath.Base(file.Filename)
-			if err := ctx.SaveUploadedFile(file, filepath.Join(uploadCache.OutputDir, filename)); err != nil {
+			filePath := filepath.Join(uploadCache.OutputDir, filename)
+			if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 				if eventFound {
-					event.Emit(fmt.Sprintf("upload file", err.Error()))
+					event.Emit(fmt.Sprint("upload file err: %s", err.Error()))
 				}
 				ctx.String(http.StatusBadRequest, "upload file err: %s", err.Error())
 				return
 			}
+			if eventFound {
+				event.Emit(fmt.Sprint("uploaded file %s", filename))
+			}
+			isZip := upload_service.IsZip(filename)
+			if isZip {
+				upload_service.UnZip(filePath, uploadCache.OutputDir)
+				os.Remove(filePath)
+			}
+
 		}
 		uploadCache.Status = upload_cache.UPLOAD_COMPLETED
 		uploadCache.Save()

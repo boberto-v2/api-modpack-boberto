@@ -3,7 +3,6 @@ package event_service
 import (
 	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,32 +20,30 @@ func WebSocketHandler(ctx *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	uid := uuid.New()
-	wsURL := ctx.Request.URL
-	wsURLParam, err := url.ParseQuery(wsURL.RawQuery)
+	eventId := ctx.Query("id")
 	if err != nil {
 		wsSession.Close()
 		log.Println(err)
 	}
-	if _, ok := wsURLParam["id"]; ok {
-		eventId := wsURLParam["id"][0]
-		log.Printf("A client connect to %s", eventId)
-		if _, ok := sessionGroupMap[eventId]; ok {
-			sessionGroupMap[eventId][uid] = wsSession
-		} else {
-			sessionGroupMap[eventId] = make(map[uuid.UUID]*websocket.Conn)
-			sessionGroupMap[eventId][uid] = wsSession
-		}
-		defer wsSession.Close()
-		// _, found := GetById(eventId)
-		// if !found {
-		// 	wsSession.WriteMessage(1, []byte("Event not found or expired"))
-		// 	wsSession.Close()
-		// }
-		echo(wsSession, eventId, uid)
+	if eventId == "" {
+		wsSession.Close()
 		return
 	}
-	wsSession.Close()
+	uid := uuid.New()
+	log.Printf("A client connect to %s", eventId)
+	if _, ok := sessionGroupMap[eventId]; ok {
+		sessionGroupMap[eventId][uid] = wsSession
+	} else {
+		sessionGroupMap[eventId] = make(map[uuid.UUID]*websocket.Conn)
+		sessionGroupMap[eventId][uid] = wsSession
+	}
+	defer wsSession.Close()
+	// _, found := GetById(eventId)
+	// if !found {
+	// 	wsSession.WriteMessage(1, []byte("Event not found or expired"))
+	// 	wsSession.Close()
+	// }
+	echo(wsSession, eventId, uid)
 }
 
 func echo(wsSession *websocket.Conn, eventId string, uid uuid.UUID) {
@@ -54,7 +51,7 @@ func echo(wsSession *websocket.Conn, eventId string, uid uuid.UUID) {
 		messageType, messageContent, err := wsSession.ReadMessage()
 		if messageType == 1 {
 			log.Printf("Recv:%s from %s", messageContent, eventId)
-			emit(eventId, messageContent)
+			emit(eventId, "FREEEEEMAN!!!")
 		}
 		if err != nil {
 			wsSession.Close()
@@ -72,11 +69,11 @@ func echo(wsSession *websocket.Conn, eventId string, uid uuid.UUID) {
 }
 
 func (event Event) Emit(messageContent string) {
-	emit(event.Id, []byte(messageContent))
+	emit(event.Id, messageContent)
 }
 
-func emit(eventId string, messageContent []byte) {
-	log.Printf("emit event to " + eventId + "content " + string(messageContent))
+func emit(eventId, messageContent string) {
+	log.Printf("emit event to %s %s", eventId, messageContent)
 	for _, wsSession := range sessionGroupMap[eventId] {
 		err := wsSession.WriteJSON(map[string]any{
 			"event": eventId,

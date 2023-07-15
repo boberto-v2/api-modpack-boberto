@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetCRC32(filePath string) (uint32, error) {
+func GetChecksum(filePath string) (uint32, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return 0, err

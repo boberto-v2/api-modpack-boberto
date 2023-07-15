@@ -6,7 +6,7 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-var upload_cache = cache.New(5*time.Minute, 10*time.Minute)
+var upload_cache = cache.New(30*time.Minute, 5*time.Minute)
 
 type UploadStatus int
 
