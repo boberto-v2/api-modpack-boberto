@@ -1,5 +1,5 @@
 [api]
-port = "8000"
+port = "80"
 apikey_header = "x-api-key"
 
 [authentication]
