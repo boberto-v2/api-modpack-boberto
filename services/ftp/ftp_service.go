@@ -51,7 +51,6 @@ func UploadFileFTP(fileFtp string, relativeToLocalPath string, client *ftp.Serve
 	client.ChangeDir(FTP_SEPARATOR)
 	directory, filename := filepath.Split(fileFtp)
 	dirs := strings.Split(directory, string(os.PathSeparator))
-	fmt.Printf("###FILE:%s", filepath.Join(relativeToLocalPath, fileFtp))
 	for _, dir := range dirs {
 		if dir == "" {
 			continue
@@ -69,8 +68,6 @@ func UploadFileFTP(fileFtp string, relativeToLocalPath string, client *ftp.Serve
 		}
 	}
 	file, err := os.Open(filepath.Join(relativeToLocalPath, fileFtp))
-	fmt.Printf("###FILE:%s", filepath.Join(relativeToLocalPath, fileFtp))
-
 	if err != nil {
 		return fmt.Errorf("failed to open file: %v", err)
 	}

@@ -98,7 +98,7 @@ func CreateClientRoute(router gin.IRouter) {
 		}
 		files := modpack_service.GetModPackFiles(modpack, modpack_models.Client)
 		manifest_service.WriteModPackManifestFiles(modpack, files, modpack_models.Client)
-		modpack_service.UploadClient(modpack, ftpClientConnection)
+		go modpack_service.UploadClient(modpack, ftpClientConnection)
 		// create modpack rest object
 		restObject := rest_object.New(ctx)
 		restObject.CreateModPackObject(modpackCache)

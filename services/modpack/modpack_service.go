@@ -33,13 +33,14 @@ func GetModPackFiles(modPack modpack_models.MinecraftModPack,
 				return nil
 			}
 			relativePath := strings.ReplaceAll(path, modpackPath+string(os.PathSeparator), "")
+			fileUrl := modPack.FileUrl + relativePath
 			checksum, _ := file_service.GetChecksum(path)
 			fileType := GetType(relativePath)
 			modpackFile := manifest_models.ManifestFile{
 				Name:        info.Name(),
 				Size:        info.Size(),
 				Path:        relativePath,
-				Url:         "",
+				Url:         fileUrl,
 				Checksum:    checksum,
 				Environment: environment,
 				Type:        fileType,

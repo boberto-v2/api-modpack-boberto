@@ -22,7 +22,6 @@ func New(old manifest_models.ManifestFiles, new manifest_models.ManifestFiles) M
 	return result
 }
 
-// TODO: Show git blame to daniel to exlain why i refactor this.
 func (manifestComparer ManifestComparer) Compare() ManifestComparerResult {
 	result := ManifestComparerResult{
 		ToDelete: []manifest_models.ManifestFile{},

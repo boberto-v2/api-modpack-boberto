@@ -8,6 +8,7 @@ import (
 
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
+	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
 	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
 	"github.com/gin-gonic/gin"
@@ -43,9 +44,9 @@ func CreateUploadRoute(router gin.IRouter) {
 			if eventFound {
 				event.Emit(fmt.Sprint("uploaded file %s", filename))
 			}
-			isZip := upload_service.IsZip(filename)
+			isZip := file_service.IsZip(filename)
 			if isZip {
-				upload_service.UnZip(filePath, uploadCache.OutputDir)
+				file_service.UnZip(filePath, uploadCache.OutputDir)
 				os.Remove(filePath)
 			}
 

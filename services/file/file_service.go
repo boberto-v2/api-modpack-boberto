@@ -24,16 +24,10 @@ func GetChecksum(filePath string) (uint32, error) {
 	return checksum, nil
 }
 
-func CreateDirectoryIfNotExists(dirPath string) error {
-	_, err := os.Stat(dirPath)
-	if os.IsNotExist(err) {
-		err := os.MkdirAll(dirPath, 0755)
-		if err != nil {
-			return err
-		}
-		fmt.Println("Directory created:", dirPath)
-	}
-	return err
+func IsZip(filePath string) bool {
+	fileExtension := filepath.Ext(filePath)
+	isZipExtenion := fileExtension == ".zip"
+	return isZipExtenion
 }
 
 func CreateAndDestroyDirectory(dirPath string) error {
@@ -51,7 +45,7 @@ func CreateAndDestroyDirectory(dirPath string) error {
 	return err
 }
 
-func Unzip(zipPath string, output string) {
+func UnZip(zipPath string, output string) {
 	archive, err := zip.OpenReader(zipPath)
 	if err != nil {
 		panic(err)
@@ -60,7 +54,6 @@ func Unzip(zipPath string, output string) {
 	for _, f := range archive.File {
 		filePath := filepath.Join(output, f.Name)
 		fmt.Println("unzipping file ", filePath)
-
 		if !strings.HasPrefix(filePath, filepath.Clean(output)+string(os.PathSeparator)) {
 			fmt.Println("invalid file path")
 			return
@@ -70,16 +63,13 @@ func Unzip(zipPath string, output string) {
 			os.MkdirAll(filePath, os.ModePerm)
 			continue
 		}
-
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
 			panic(err)
 		}
-
 		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			panic(err)
 		}
-
 		fileInArchive, err := f.Open()
 		if err != nil {
 			panic(err)

@@ -63,14 +63,12 @@ func UploadOrDeleteSyncModPack(
 		filePath := filepath.Join(modPackPath, newFile.Path)
 		err := ftp_service.UploadFileFTP(filePath, modPackPath, ftpClient)
 		if err != nil {
-			log.Printf(err.Error())
 			return err
 		}
 	}
 	for _, deleteFile := range result.ToDelete {
 		err := ftp_service.DeleteFileFTP(deleteFile.Path, ftpClient)
 		if err != nil {
-			log.Printf(err.Error())
 			return err
 		}
 	}
@@ -78,54 +76,10 @@ func UploadOrDeleteSyncModPack(
 	return nil
 }
 
-func UploadServer(modpack modpack_models.MinecraftModPack,
-	ftpCredentials ftp_models.Ftp) error {
-	cfg := config.GetConfig()
-	normalizeName := common.NormalizeString(modpack.Name)
-	modPackPath := filepath.Join(
-		cfg.ModPacks.PublicPath,
-		normalizeName,
-		modpack_models.Server.GetFolderName())
-
-	ftpClient, err := ftp_service.OpenFtpConnection(
-		ftpCredentials.Directory,
-		ftpCredentials.Address,
-		ftpCredentials.User,
-		ftpCredentials.Password,
-	)
-	if err != nil {
-		log.Println("Something goes wrong at ftp connecion. Put this at queue", err)
-		return err
-	}
-
-	manifest := manifest_service.ReadModPackManifestFiles(modpack, modpack_models.Client)
-	oldManifest := manifest_service.ReadModPackManifestFiles(modpack, modpack_models.Server)
-
-	// oldManifest, err := GetFTPManifest(ftpClient)
-	if err != nil {
-		for _, item := range manifest.Files {
-			ftp_service.UploadFileFTP(item.Path, modPackPath, ftpClient)
-		}
-		log.Printf("Uploading all server modpacks files to ftp server")
-		log.Printf("Uploading server manifest file")
-		err = ftp_service.UploadFileFTP(cfg.ModPacks.ManifestName, modPackPath, ftpClient)
-		if err != nil {
-			log.Printf("Manifest server uploaded")
-			return err
-		}
-		return nil
-	}
-	if &oldManifest != nil {
-		UploadOrDeleteSyncModPack(oldManifest, manifest, modPackPath, ftpClient)
-	}
-	return nil
-}
-
 func UploadClient(modpack modpack_models.MinecraftModPack,
 	ftpCredentials ftp_models.Ftp) error {
 	cfg := config.GetConfig()
 	nameNormalized := common.NormalizeString(modpack.Name)
-
 	modPackPath := filepath.Join(
 		cfg.ModPacks.PublicPath,
 		nameNormalized,
@@ -148,16 +102,19 @@ func UploadClient(modpack modpack_models.MinecraftModPack,
 			ftp_service.UploadFileFTP(item.Path, modPackPath, ftpClient)
 		}
 		log.Printf("Uploading all client modpacks files to ftp server")
-		//upload manifest too
 		err := UploadManifest(modpack, ftpClient)
 		if err != nil {
 			log.Println("Somethings goes wrong at ftp connecion. Close everyting", err)
 			return err
 		}
-		return nil
+		return err
 	}
-	if oldManifest != nil {
-		UploadOrDeleteSyncModPack(*oldManifest, manifest, modPackPath, ftpClient)
+	UploadOrDeleteSyncModPack(*oldManifest, manifest, modPackPath, ftpClient)
+	err = UploadManifest(modpack, ftpClient)
+	if err != nil {
+		log.Println("Somethings goes wrong at ftp connecion. Close everyting", err)
+		return err
 	}
+
 	return nil
 }
