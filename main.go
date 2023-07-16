@@ -30,7 +30,7 @@ func main() {
 	router := gin.Default()
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong!",
+			"message": "pong",
 		})
 	})
 	routes.CreateRoutes(router)
