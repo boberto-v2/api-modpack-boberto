@@ -51,7 +51,7 @@ func echo(wsSession *websocket.Conn, eventId string, uid uuid.UUID) {
 		messageType, messageContent, err := wsSession.ReadMessage()
 		if messageType == 1 {
 			log.Printf("Recv:%s from %s", messageContent, eventId)
-			emit(eventId, "FREEEEEMAN!!!")
+			wsSession.WriteMessage(1, messageContent)
 		}
 		if err != nil {
 			wsSession.Close()
@@ -68,23 +68,16 @@ func echo(wsSession *websocket.Conn, eventId string, uid uuid.UUID) {
 	}
 }
 
-func (event Event) Emit(messageContent string) {
-	emit(event.Id, messageContent)
+func (event Event) Emit(messageContent []byte) {
+	emit(event, messageContent)
 }
 
-func emit(eventId, messageContent string) {
-	log.Printf("emit event to %s %s", eventId, messageContent)
-	for _, wsSession := range sessionGroupMap[eventId] {
-		err := wsSession.WriteJSON(map[string]any{
-			"event": eventId,
-			"data":  messageContent,
-		})
+func emit(event Event, messageContent []byte) {
+	log.Printf("emit event to %s %s", event.Id, messageContent)
+	for _, wsSession := range sessionGroupMap[event.Id] {
+		err := wsSession.WriteMessage(1, messageContent)
 		if err != nil {
 			log.Println(err)
 		}
 	}
-}
-
-func Complete() {
-
 }

@@ -25,17 +25,17 @@ const (
 	UPLOAD_CANCELED  UploadStatus = 4
 )
 
-func GetById(id string) (uploadCache UploadCache, found bool) {
+func GetById(id string) (uploadCache *UploadCache, found bool) {
 	if uploadCache, found := upload_cache.Get(id); found {
-		return uploadCache.(UploadCache), true
+		return uploadCache.(*UploadCache), true
 	}
-	return UploadCache{}, false
+	return nil, false
 }
 
-func Create(uploadCache UploadCache) {
+func Create(uploadCache *UploadCache) {
 	upload_cache.SetDefault(uploadCache.Id, uploadCache)
 }
 
-func (uploadCache UploadCache) Save() {
+func (uploadCache *UploadCache) Save() {
 	upload_cache.SetDefault(uploadCache.Id, uploadCache)
 }

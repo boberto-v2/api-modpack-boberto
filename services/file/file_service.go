@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/brutalzinn/boberto-modpack-api/common"
 )
 
 func GetChecksum(filePath string) (uint32, error) {
@@ -45,12 +47,13 @@ func CreateAndDestroyDirectory(dirPath string) error {
 	return err
 }
 
-func UnZip(zipPath string, output string) {
+func UnZip(zipPath string, output string, callback func(common.ProgressCalculator)) {
 	archive, err := zip.OpenReader(zipPath)
 	if err != nil {
 		panic(err)
 	}
 	defer archive.Close()
+	progressEvent := common.New(len(archive.File))
 	for _, f := range archive.File {
 		filePath := filepath.Join(output, f.Name)
 		fmt.Println("unzipping file ", filePath)
@@ -78,10 +81,13 @@ func UnZip(zipPath string, output string) {
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
 			panic(err)
 		}
-
 		dstFile.Close()
 		fileInArchive.Close()
+		progressEvent.Increment()
+		progressEvent.Calculate()
+		callback(progressEvent)
 	}
+
 }
 func WalkDir(dir, relativeTo string) ([]string, error) {
 	var files []string

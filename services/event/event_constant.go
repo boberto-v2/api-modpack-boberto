@@ -3,9 +3,11 @@ package event_service
 type EventStatus int
 
 const (
-	MODPACK_FEEDBACK_EVENT = "modpack_feedback_event"
-	UPLOAD_FILE_EVENT      = "upload_file_event"
+	MODPACK_PROGRESS_EVENT = "modpack_progress_event"
+	FILE_PROGRESS_EVENT    = "file_progress_event"
+	ERROR_EVENT            = "error_event"
 )
+
 const (
 	EVENT_STARTED   EventStatus = 1
 	EVENT_PENDING   EventStatus = 2

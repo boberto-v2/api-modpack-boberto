@@ -1,9 +1,12 @@
 package game_client_request
 
+import rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
+
 type FinishClientModPackRequest struct {
 	Name      string `json:"name"`
 	FileUrl   string `json:"file_url"`
 	ClientFtp *Ftp   `json:"client_ftp"`
+	Event     rest_object.EventObject
 }
 
 type Ftp struct {

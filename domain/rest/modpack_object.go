@@ -1,7 +1,7 @@
 package rest_object
 
 import (
-	"github.com/brutalzinn/boberto-modpack-api/common"
+	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
 	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
@@ -14,6 +14,7 @@ type ModPackObject struct {
 }
 
 func (restObject *RestObject) CreateModPackObject(modPackCache modpack_cache_models.ModPackCache) *RestObject {
+	hyperlink := hypermedia.New(restObject.ctx)
 	restObject.Resource = rest.Resource{
 		Object: MODPACK_OBJECT,
 		Attribute: ModPackObject{
@@ -22,7 +23,7 @@ func (restObject *RestObject) CreateModPackObject(modPackCache modpack_cache_mod
 			Environment: modPackCache.Environment,
 			Status:      modPackCache.Status.GetModPackStatus(),
 		},
-		Link: common.GetCurrentHypermedia(restObject.ctx, modPackCache.Id),
+		Link: hyperlink.GetCurrentHyperLink(modPackCache.Id),
 	}
 	return restObject
 }

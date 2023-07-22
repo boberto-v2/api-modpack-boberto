@@ -1,7 +1,7 @@
 package rest_object
 
 import (
-	"github.com/brutalzinn/boberto-modpack-api/common"
+	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
@@ -18,7 +18,7 @@ func (restObject *RestObject) CreateEventObject(event event_service.Event) *Rest
 			Id: event.Id,
 			Link: rest.Link{
 				Rel:  "listen_event",
-				Href: common.GetSocketUrl(restObject.ctx) + "/application/event?id=" + event.Id,
+				Href: hypermedia.GetSocketUrl(restObject.ctx) + "/application/event?id=" + event.Id,
 			},
 		},
 		Link: restObject.Link,

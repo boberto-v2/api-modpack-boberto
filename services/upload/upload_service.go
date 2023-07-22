@@ -17,7 +17,7 @@ func Create(outputDir string) *upload_cache.UploadCache {
 		Status:    upload_cache.UPLOAD_CREATED,
 		ExpireAt:  time.Now().Add(time.Duration(time.Hour * 1)),
 	}
-	upload_cache.Create(uploadCache)
+	upload_cache.Create(&uploadCache)
 	return &uploadCache
 }
 
@@ -26,5 +26,5 @@ func GetById(id string) (*upload_cache.UploadCache, error) {
 	if !found {
 		return nil, errors.New("The token provided is invalid or expired.")
 	}
-	return &uploadCache, nil
+	return uploadCache, nil
 }

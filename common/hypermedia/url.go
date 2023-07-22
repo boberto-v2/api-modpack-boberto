@@ -1,4 +1,4 @@
-package common
+package hypermedia
 
 import (
 	goeasyrest "github.com/brutalzinn/go-easy-rest"
@@ -23,15 +23,12 @@ func GetSocketUrl(ctx *gin.Context) string {
 	return url
 }
 
-func GetCurrentHypermedia(ctx *gin.Context, resourceId string) []goeasyrest.Link {
-	hostUrl := GetUrl(ctx)
-	ctxLinks := ctx.Value("links").([]goeasyrest.Link)
-	links := make([]goeasyrest.Link, 0)
-	for _, item := range ctxLinks {
-		item.Href = hostUrl + item.Href + resourceId
-		links = append(links, item)
-	}
-
-	return links
-
+func getUrlContext(context *gin.Context) []goeasyrest.Link {
+	ctxLinks := context.Value(CTX_LINK_KEY).([]goeasyrest.Link)
+	return ctxLinks
+}
+func addUrlContext(context *gin.Context, link goeasyrest.Link) {
+	ctxLinks := context.Value(CTX_LINK_KEY).([]goeasyrest.Link)
+	ctxLinks = append(ctxLinks, link)
+	context.Set(CTX_LINK_KEY, ctxLinks)
 }

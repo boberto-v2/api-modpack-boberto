@@ -1,13 +1,14 @@
 package application_routes
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"github.com/brutalzinn/boberto-modpack-api/common"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
+	event_rest "github.com/brutalzinn/boberto-modpack-api/services/event/rest"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
 	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
@@ -36,17 +37,25 @@ func CreateUploadRoute(router gin.IRouter) {
 			filePath := filepath.Join(uploadCache.OutputDir, filename)
 			if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 				if eventFound {
-					event.Emit(fmt.Sprint("upload file err: %s", err.Error()))
+					messageEvent, err := event_rest.CreateMessageEventObject(err.Error())
+					if err != nil {
+						return
+					}
+					event.Emit(messageEvent)
 				}
 				ctx.String(http.StatusBadRequest, "upload file err: %s", err.Error())
 				return
 			}
-			if eventFound {
-				event.Emit(fmt.Sprint("uploaded file %s", filename))
-			}
+
 			isZip := file_service.IsZip(filename)
 			if isZip {
-				file_service.UnZip(filePath, uploadCache.OutputDir)
+				file_service.UnZip(filePath, uploadCache.OutputDir, func(percentage common.ProgressCalculator) {
+					fileUploadEvent, err := event_rest.CreateFileUploadEventObject(percentage.Progress)
+					if err != nil {
+						return
+					}
+					event.Emit(fileUploadEvent)
+				})
 				os.Remove(filePath)
 			}
 

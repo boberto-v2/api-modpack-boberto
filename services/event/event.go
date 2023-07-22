@@ -29,15 +29,22 @@ func Create(eventName string) Event {
 		CreateAt: time.Now(),
 		Status:   EVENT_STARTED,
 	}
-	event_cache.Add(id, new_event, cache.DefaultExpiration)
+	event_cache.Add(id, &new_event, cache.DefaultExpiration)
 	return new_event
 }
 
-func GetById(id string) (eventCache Event, found bool) {
+func GetById(id string) (eventCache *Event, found bool) {
 	if eventCache, found := event_cache.Get(id); found {
-		return eventCache.(Event), true
+		return eventCache.(*Event), true
 	}
-	return Event{}, false
+	return nil, false
+}
+
+func (event *Event) SetName(name string) {
+	event.Name = name
+}
+func (event *Event) Save() {
+	event_cache.SetDefault(event.Id, event)
 }
 
 func Remove(key string) {

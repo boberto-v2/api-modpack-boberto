@@ -59,18 +59,13 @@ func CreateClientRoute(router gin.IRouter) {
 		// form with more idiomatic sintax
 		restUploadFileObject := rest_object.New(ctx)
 		restUploadFileObject.CreateUploadFileObject(uploadCache)
-
-		event := event_service.Create(event_service.MODPACK_FEEDBACK_EVENT)
+		event := event_service.Create(event_service.MODPACK_PROGRESS_EVENT)
 		restEventObject := rest_object.New(ctx)
 		restEventObject.CreateEventObject(event)
 
 		//i think this is more readable now.
 		ctx.JSON(http.StatusOK, gin.H{
 			"resource": restModPackFileObject.Resource,
-			"relationships": map[string]any{
-				"object": restUploadFileObject.Resource,
-				"event":  restEventObject.Resource,
-			},
 		})
 	})
 
@@ -99,7 +94,6 @@ func CreateClientRoute(router gin.IRouter) {
 		files := modpack_service.GetModPackFiles(modpack, modpack_models.Client)
 		manifest_service.WriteModPackManifestFiles(modpack, files, modpack_models.Client)
 		go modpack_service.UploadClient(modpack, ftpClientConnection)
-		// create modpack rest object
 		restObject := rest_object.New(ctx)
 		restObject.CreateModPackObject(modpackCache)
 		ctx.JSON(http.StatusOK, restObject)

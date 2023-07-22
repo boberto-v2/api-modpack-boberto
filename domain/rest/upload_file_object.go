@@ -3,7 +3,7 @@ package rest_object
 import (
 	"fmt"
 
-	"github.com/brutalzinn/boberto-modpack-api/common"
+	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
 	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
@@ -25,7 +25,7 @@ func (restObject *RestObject) CreateUploadFileObject(uploadCache *upload_cache.U
 		Link: []rest.Link{
 			{
 				Rel:    UPLOAD_FILE,
-				Href:   fmt.Sprintf("%s/application/upload/%s", common.GetUrl(restObject.ctx), uploadCache.Id),
+				Href:   fmt.Sprintf("%s/application/upload/%s", hypermedia.GetUrl(restObject.ctx), uploadCache.Id),
 				Method: "POST",
 			},
 		},
