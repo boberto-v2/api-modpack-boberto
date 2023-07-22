@@ -9,7 +9,6 @@ import (
 	game_client_request "github.com/brutalzinn/boberto-modpack-api/domain/request/game/client"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
 	"github.com/brutalzinn/boberto-modpack-api/middlewares"
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
 	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
 	ftp_models "github.com/brutalzinn/boberto-modpack-api/services/ftp/models"
 	modpack_service "github.com/brutalzinn/boberto-modpack-api/services/modpack"
@@ -18,6 +17,7 @@ import (
 	manifest_service "github.com/brutalzinn/boberto-modpack-api/services/modpack/manifest"
 	modpack_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/models"
 	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
+	goeasyrest "github.com/brutalzinn/go-easy-rest"
 	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )
@@ -52,16 +52,18 @@ func CreateClientRoute(router gin.IRouter) {
 		outputDir := filepath.Join(modpackPath, modpack_models.Client.GetFolderName())
 		uploadCache := upload_service.Create(outputDir)
 
+		restUploadFileObject := rest_object.New(ctx)
+		restUploadFileObject.CreateUploadFileObject(uploadCache)
+
 		///form one to create rest
 		restModPackFileObject := rest_object.New(ctx)
 		restModPackFileObject.CreateModPackObject(modpackCache)
 		// create a rest object to represent a upload object
 		// form with more idiomatic sintax
-		restUploadFileObject := rest_object.New(ctx)
-		restUploadFileObject.CreateUploadFileObject(uploadCache)
-		event := event_service.Create(event_service.MODPACK_PROGRESS_EVENT)
-		restEventObject := rest_object.New(ctx)
-		restEventObject.CreateEventObject(event)
+
+		// event := event_service.Create(event_service.MODPACK_PROGRESS_EVENT)
+		// restEventObject := rest_object.New(ctx)
+		// restEventObject.CreateEventObject(event)
 
 		//i think this is more readable now.
 		ctx.JSON(http.StatusOK, gin.H{
@@ -101,8 +103,7 @@ func CreateClientRoute(router gin.IRouter) {
 }
 func createHypermediaUrl() *middlewares.Hypermedia {
 	var links []rest.Link
-	links = append(links, middlewares.CreateHypermediaUrl("_self", "GET", "/game/client/modpack/"))
-	links = append(links, middlewares.CreateHypermediaUrl("finish", "POST", "/game/client/modpack/finish/"))
+	links = append(links, goeasyrest.Link{Rel: "_self", Href: "/game/client/modpack/", Method: "GET"})
 	options := middlewares.Hypermedia{
 		Links: links,
 	}

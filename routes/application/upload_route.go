@@ -54,11 +54,12 @@ func CreateUploadRoute(router gin.IRouter) {
 					if err != nil {
 						return
 					}
-					event.Emit(fileUploadEvent)
+					if eventFound {
+						event.Emit(fileUploadEvent)
+					}
 				})
 				os.Remove(filePath)
 			}
-
 		}
 		uploadCache.Status = upload_cache.UPLOAD_COMPLETED
 		uploadCache.Save()

@@ -133,9 +133,9 @@ func CreateApiKeyRoute(router gin.IRouter) {
 
 func createHypermediaUrl() *middlewares.Hypermedia {
 	var links []rest.Link
-	links = append(links, middlewares.CreateHypermediaUrl("_self", "GET", "/user/apikey/"))
-	links = append(links, middlewares.CreateHypermediaUrl("delete", "DELETE", "/user/apikey/delete/"))
-	links = append(links, middlewares.CreateHypermediaUrl("regenerate", "PUT", "/user/apikey/regenerate/"))
+	// links = append(links, middlewares.CreateHypermediaUrl("_self", "GET", "/user/apikey/"))
+	// links = append(links, middlewares.CreateHypermediaUrl("delete", "DELETE", "/user/apikey/delete/"))
+	// links = append(links, middlewares.CreateHypermediaUrl("regenerate", "PUT", "/user/apikey/regenerate/"))
 	options := middlewares.Hypermedia{
 		Links: links,
 	}

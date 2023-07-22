@@ -28,7 +28,11 @@ func getUrlContext(context *gin.Context) []goeasyrest.Link {
 	return ctxLinks
 }
 func addUrlContext(context *gin.Context, link goeasyrest.Link) {
-	ctxLinks := context.Value(CTX_LINK_KEY).([]goeasyrest.Link)
-	ctxLinks = append(ctxLinks, link)
-	context.Set(CTX_LINK_KEY, ctxLinks)
+	ctxLinks := context.Value(CTX_LINK_KEY) //.([]goeasyrest.Link)
+	if ctxLinks != nil {
+		ctxLinks = append(ctxLinks.([]goeasyrest.Link), link)
+		context.Set(CTX_LINK_KEY, ctxLinks)
+		return
+	}
+	context.Set(CTX_LINK_KEY, make([]goeasyrest.Link, 0))
 }

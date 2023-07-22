@@ -23,7 +23,7 @@ func (restObject *RestObject) CreateModPackObject(modPackCache modpack_cache_mod
 			Environment: modPackCache.Environment,
 			Status:      modPackCache.Status.GetModPackStatus(),
 		},
-		Link: hyperlink.GetCurrentHyperLink(modPackCache.Id),
+		Link: hyperlink.GetCurrentHyperLink(),
 	}
 	return restObject
 }

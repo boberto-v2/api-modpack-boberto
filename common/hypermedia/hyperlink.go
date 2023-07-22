@@ -20,11 +20,11 @@ const (
 type HyperLink struct {
 	context *gin.Context
 	Options *HyperOptions
-	Id      string
 }
 
 type HyperOptions struct {
 	UrlType UrlType
+	Id      string
 }
 
 func New(ctx *gin.Context) *HyperLink {
@@ -41,25 +41,25 @@ func (hyperLink *HyperLink) SetOptions(options HyperOptions) {
 	hyperLink.Options = &options
 }
 
-func (hyperLink *HyperLink) GetCurrentHyperLink(resourceId string) []goeasyrest.Link {
+func (hyperLink *HyperLink) GetCurrentHyperLink() []goeasyrest.Link {
 	ctxLinks := hyperLink.context.Value(CTX_LINK_KEY).([]goeasyrest.Link)
 	links := make([]goeasyrest.Link, 0)
 	for _, item := range ctxLinks {
-		item.Href = item.Href + resourceId
+		item.Href = item.Href + hyperLink.Options.Id
 		links = append(links, item)
 	}
 	return links
 }
 
-func (hyperLink *HyperLink) AddHyperLink(link goeasyrest.Link) {
+func (hyperLink *HyperLink) AddHyperLink(link goeasyrest.Link) goeasyrest.Link {
 	hostUrl := hyperLink.getCurrentUrl()
 	newLink := goeasyrest.Link{
 		Rel:    link.Rel,
-		Href:   hostUrl + link.Href,
+		Href:   hostUrl + link.Href + hyperLink.Options.Id,
 		Method: link.Method,
 	}
-	addUrlContext(hyperLink.context, link)
-	hyperLink.context.Set(CTX_LINK_KEY, newLink)
+	addUrlContext(hyperLink.context, newLink)
+	return newLink
 }
 
 func (hyperLink *HyperLink) getCurrentUrl() string {
