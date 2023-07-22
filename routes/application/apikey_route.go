@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"time"
 
-	apikey_database "github.com/brutalzinn/boberto-modpack-api/database/apikey"
 	"github.com/brutalzinn/boberto-modpack-api/domain/request"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
-	"github.com/brutalzinn/boberto-modpack-api/middlewares"
-	authentication_apikey "github.com/brutalzinn/boberto-modpack-api/services/authentication/apikey"
-	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
+	"github.com/brutalzinn/boberto-modpack-api/infra/middlewares"
+	authentication_apikey "github.com/brutalzinn/boberto-modpack-api/infra/services/authentication/apikey"
+	authentication_user "github.com/brutalzinn/boberto-modpack-api/infra/services/authentication/user"
+	apikey_database "github.com/brutalzinn/boberto-modpack-api/repository/database/apikey"
 	rest "github.com/brutalzinn/go-easy-rest"
 	"github.com/gin-gonic/gin"
 )

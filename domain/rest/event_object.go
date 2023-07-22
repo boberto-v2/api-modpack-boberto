@@ -2,7 +2,7 @@ package rest_object
 
 import (
 	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
+	event_service "github.com/brutalzinn/boberto-modpack-api/infra/services/event"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 

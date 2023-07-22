@@ -1,7 +1,7 @@
 package application_routes
 
 import (
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
+	event_service "github.com/brutalzinn/boberto-modpack-api/infra/services/event"
 	"github.com/gin-gonic/gin"
 )
 

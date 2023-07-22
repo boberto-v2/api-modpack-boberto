@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/brutalzinn/boberto-modpack-api/middlewares"
+	"github.com/brutalzinn/boberto-modpack-api/infra/middlewares"
 	application_routes "github.com/brutalzinn/boberto-modpack-api/routes/application"
 	authorization_routes "github.com/brutalzinn/boberto-modpack-api/routes/authorization"
 	game_routes "github.com/brutalzinn/boberto-modpack-api/routes/game"

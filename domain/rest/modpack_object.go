@@ -2,7 +2,7 @@ package rest_object
 
 import (
 	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
-	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/services/modpack/cache/models"
+	modpack_cache_models "github.com/brutalzinn/boberto-modpack-api/infra/services/modpack/cache/models"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 

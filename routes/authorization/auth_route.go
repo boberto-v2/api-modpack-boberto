@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
-	user_database "github.com/brutalzinn/boberto-modpack-api/database/user"
-	entities_user "github.com/brutalzinn/boberto-modpack-api/database/user/entities"
 	"github.com/brutalzinn/boberto-modpack-api/domain/request"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
-	authentication_user "github.com/brutalzinn/boberto-modpack-api/services/authentication/user"
+	authentication_user "github.com/brutalzinn/boberto-modpack-api/infra/services/authentication/user"
+	user_database "github.com/brutalzinn/boberto-modpack-api/repository/database/user"
+	entities_user "github.com/brutalzinn/boberto-modpack-api/repository/database/user/entities"
 	"github.com/gin-gonic/gin"
 )
 

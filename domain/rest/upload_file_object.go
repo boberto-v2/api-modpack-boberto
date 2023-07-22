@@ -2,7 +2,7 @@ package rest_object
 
 import (
 	"github.com/brutalzinn/boberto-modpack-api/common/hypermedia"
-	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
+	upload_cache "github.com/brutalzinn/boberto-modpack-api/infra/services/upload/cache"
 	rest "github.com/brutalzinn/go-easy-rest"
 )
 

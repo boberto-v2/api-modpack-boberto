@@ -7,11 +7,11 @@ import (
 
 	"github.com/brutalzinn/boberto-modpack-api/common"
 	rest_object "github.com/brutalzinn/boberto-modpack-api/domain/rest"
-	event_service "github.com/brutalzinn/boberto-modpack-api/services/event"
-	event_rest "github.com/brutalzinn/boberto-modpack-api/services/event/rest"
-	file_service "github.com/brutalzinn/boberto-modpack-api/services/file"
-	upload_service "github.com/brutalzinn/boberto-modpack-api/services/upload"
-	upload_cache "github.com/brutalzinn/boberto-modpack-api/services/upload/cache"
+	event_service "github.com/brutalzinn/boberto-modpack-api/infra/services/event"
+	event_rest "github.com/brutalzinn/boberto-modpack-api/infra/services/event/rest"
+	file_service "github.com/brutalzinn/boberto-modpack-api/infra/services/file"
+	upload_service "github.com/brutalzinn/boberto-modpack-api/infra/services/upload"
+	upload_cache "github.com/brutalzinn/boberto-modpack-api/infra/services/upload/cache"
 	"github.com/gin-gonic/gin"
 )
 
